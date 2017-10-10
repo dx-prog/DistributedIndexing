@@ -13,13 +13,13 @@ namespace Sprockets.Test {
             var y = CreateBranch(x);
             var z = CreateBranch(y);
 
-            var count = z.Search(new GraphNodeVisitationControl<int>() {
-                        Timeout=TimeSpan.FromMinutes(Debugger.IsAttached?1:0.1)
-                    }, 
+            var count = z.Search(new GraphNodeVisitationControl<int> {
+                        Timeout = TimeSpan.FromMinutes(Debugger.IsAttached ? 1 : 0.1)
+                    },
                     (context, wander) => {
-                        context.Settings.WandingOption = (n)=> n.Value;
+                        context.Settings.WandingOption = n => n.Value;
                         var freedom = Math.Abs(context.Freedom);
-                        Console.WriteLine("[{0},{1}] ===== {2}", freedom,context.Cursor, wander);
+                        Console.WriteLine("[{0},{1}] ===== {2}", freedom, context.Cursor, wander);
                         if (x.Value == wander.Value) {
                             context.MoveTo(wander);
                             context.Exit();
@@ -31,7 +31,7 @@ namespace Sprockets.Test {
                             return true;
                         }
                         // test if we are at the center
-                            if (context.Cursor == wander)
+                        if (context.Cursor == wander)
                             return false;
                         if (Math.Abs(context.Freedom) < double.Epsilon)
                             return false;
@@ -45,12 +45,10 @@ namespace Sprockets.Test {
                         // try to navigate to node with lowest value
 
 
+                        if (x.Value != context.Cursor.Value)
+                            context.MoveToMostFree(wander, 2);
 
-                        if (x.Value != context.Cursor.Value) {
-                            context.MoveToMostFree(wander,2);
-                        }
-                
-                        
+
                         return true;
                     })
                 .ToArray();

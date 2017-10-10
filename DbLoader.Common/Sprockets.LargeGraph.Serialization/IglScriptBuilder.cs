@@ -79,7 +79,7 @@ namespace Sprockets.LargeGraph.Serialization {
         }
 
 
-        public void Report(TextWriter sw) {
+        public virtual void Report(TextWriter sw) {
             sw.WriteLine("#HEADER");
             foreach (var type in _script.TypeDef)
                 sw.WriteLine("{0}:IMPORT {1}", type.Index, type.TypeName);
@@ -113,7 +113,7 @@ namespace Sprockets.LargeGraph.Serialization {
             return RegisterObject(obj, out type, true);
         }
 
-        public long RegisterObject(object obj, out TokenObjectCategory type, bool root = false) {
+        public virtual long RegisterObject(object obj, out TokenObjectCategory type, bool root = false) {
             type = TokenObjectCategory.Unknown;
             if (obj == null)
                 return long.MinValue;
@@ -147,12 +147,13 @@ namespace Sprockets.LargeGraph.Serialization {
                 type |= TokenObjectCategory.NeedsUngraphing;
                 _tokenType[objectType] = type;
 
-                _script.Declaration.AddLast(
-                    new IglDeclareObject(
-                        objectId,
-                        _typeMap.GetId(objectType),
-                        GetArrayInitDetails(obj)
-                    ));
+                if (!HandleCustomPlacement(type, objectType, obj, objectId))
+                    _script.Declaration.AddLast(
+                        new IglDeclareObject(
+                            objectId,
+                            _typeMap.GetId(objectType),
+                            GetArrayInitDetails(obj)
+                        ));
                 if (root)
                     _script.RootObjects.Add(objectId);
                 return objectId;
@@ -164,7 +165,7 @@ namespace Sprockets.LargeGraph.Serialization {
         }
 
 
-        public void RegisterFieldSet(object instance, string fieldName, object valueInstance) {
+        public virtual void RegisterFieldSet(object instance, string fieldName, object valueInstance) {
             var instanceId = RegisterObject(instance, out _);
             var valueId = RegisterObject(valueInstance, out _);
 
@@ -176,7 +177,7 @@ namespace Sprockets.LargeGraph.Serialization {
         /// </summary>
         /// <param name="eid"></param>
         /// <param name="enumerable"></param>
-        public void RegisterDumpCopy(long eid, Array enumerable) {
+        public virtual void RegisterDumbCopy(long eid, Array enumerable) {
             _script.FastInitializations.AddLast(
                 new IglFastCopyTo(_idCounter++, eid, enumerable));
         }
@@ -186,12 +187,14 @@ namespace Sprockets.LargeGraph.Serialization {
         /// </summary>
         /// <param name="eid"></param>
         /// <param name="copyObjects"></param>
-        public void RegisterHeavyCopy(long eid, List<long> copyObjects) {
+        public virtual void RegisterHeavyCopy(long eid, List<long> copyObjects) {
             _script.HeavyInitializations.AddLast(
                 new IglHeavyCopyTo(_idCounter++, eid, copyObjects.ToArray()));
         }
 
-        public void RegisterSerialization(long root, IglRegisterType registryToken, Dictionary<string, long> specials) {
+        public virtual void RegisterSerialization(long root,
+            IglRegisterType registryToken,
+            Dictionary<string, long> specials) {
             _script.SpecialInitializations.AddLast(
                 new IglSpecialSerialization(_idCounter++, root, registryToken, specials));
         }
@@ -214,33 +217,55 @@ namespace Sprockets.LargeGraph.Serialization {
 
         public void Pump(int maxCycles = 1024 * 8) {
             while (HasPressure) {
-                while (_blitwork.Execute(ProcessBlits))
-                    if (maxCycles-- < 0)
-                        throw new InvalidOperationException();
+                OnBeforeStagePump(1, 0, ref maxCycles);
+                {
+                    while (_blitwork.Execute(ProcessBlitsAndSets))
+                        if (maxCycles-- < 0)
+                            throw new InvalidOperationException();
+                }
 
-                while (_enumerationWork.Execute(ProcessEnumerables))
-                    if (maxCycles-- < 0)
-                        throw new InvalidOperationException();
-                while (_serializationWork.Execute(ProcessSerializables))
-                    if (maxCycles-- < 0)
-                        throw new InvalidOperationException();
+                OnAfterStagePump(1, 0, ref maxCycles);
+                OnBeforeStagePump(2, 0, ref maxCycles);
+                {
+                    while (_enumerationWork.Execute(ProcessEnumerables))
+                        if (maxCycles-- < 0)
+                            throw new InvalidOperationException();
+                }
+
+                OnAfterStagePump(2, 0, ref maxCycles);
+                OnBeforeStagePump(3, 0, ref maxCycles);
+                {
+                    while (_serializationWork.Execute(ProcessSerializables))
+                        if (maxCycles-- < 0)
+                            throw new InvalidOperationException();
+                }
+
+                OnAfterStagePump(3, 0, ref maxCycles);
             }
         }
 
-
-        private Tuple<int, int> GetArrayInitDetails(object o) {
-            if (!(o is Array array))
-                return null;
-
-            if (array.Rank > 1)
-                throw new NotSupportedException();
-
-
-            return Tuple.Create(array.Length, array.Rank);
+        protected virtual bool
+            HandleCustomPlacement(TokenObjectCategory type, Type objectType, object o, long objectId) {
+            return false;
         }
 
-        private TokenObjectCategory BackLogSerialization(object obj) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stageId"></param>
+        /// <param name="stageType">Any number other then zero to indicate and track custom logic</param>
+        /// <param name="cyleCounter"></param>
+        protected virtual void OnBeforeStagePump(int stageId, int stageType, ref int cyleCounter) {
+        }
+
+        protected virtual void OnAfterStagePump(int stageId, int stageType, ref int cyleCounter) {
+        }
+
+        protected virtual TokenObjectCategory BackLogSerialization(object obj) {
             var objType = obj.GetType();
+            if (TryContractSaving(objType, obj))
+                return TokenObjectCategory.Contract;
+
             switch (obj) {
                 case ISerializable serializable:
                     var context = new StreamingContext(StreamingContextStates.Other);
@@ -257,6 +282,9 @@ namespace Sprockets.LargeGraph.Serialization {
                     return TokenObjectCategory.Enumerable;
 
                 default:
+                    if (objType.GetCustomAttributes<SerializableAttribute>() == null)
+                        throw new InvalidOperationException();
+
                     if (!_blitMap.TryGetId(objType, out var fieldMap)) {
                         var fieldData = new List<FieldInfo>();
                         foreach (var field in objType.GetFields(
@@ -272,9 +300,32 @@ namespace Sprockets.LargeGraph.Serialization {
 
                     RegisterBlit(obj, fieldMap);
 
-                    return TokenObjectCategory.Constructable;
+                    return TokenObjectCategory.FieldSettable;
             }
         }
+
+        /// <summary>
+        ///     Extend to handle data types in third-party libs that cannot
+        ///     be modified to be serializable.
+        /// </summary>
+        /// <param name="objType"></param>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        protected virtual bool TryContractSaving(Type objType, object o) {
+            return false;
+        }
+
+        private Tuple<int, int> GetArrayInitDetails(object o) {
+            if (!(o is Array array))
+                return null;
+
+            if (array.Rank > 1)
+                throw new NotSupportedException();
+
+
+            return Tuple.Create(array.Length, array.Rank);
+        }
+
 
         private void ProcessSerializables(IglScriptBody script,
             Tuple<object, IglRegisterType, SerializationInfo> arg2) {
@@ -303,7 +354,7 @@ namespace Sprockets.LargeGraph.Serialization {
             // to prevent bloat we just gong to define a dump copy
             if (type.IsArray)
                 if (type.IsFundementallyPrimative()) {
-                    RegisterDumpCopy(eid, (Array) enumerable);
+                    RegisterDumbCopy(eid, (Array) enumerable);
                     return;
                 }
 
@@ -311,7 +362,7 @@ namespace Sprockets.LargeGraph.Serialization {
             RegisterHeavyCopy(eid, copyObjects);
         }
 
-        private void ProcessBlits(IglScriptBody script, Tuple<object, FieldInfo[]> kv) {
+        private void ProcessBlitsAndSets(IglScriptBody script, Tuple<object, FieldInfo[]> kv) {
             foreach (var field in kv.Item2) {
                 var fieldValue = field.GetValue(kv.Item1);
                 RegisterObject(fieldValue, out var objType);

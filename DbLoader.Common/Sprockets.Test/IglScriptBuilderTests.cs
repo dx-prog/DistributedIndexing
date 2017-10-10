@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sprockets.LargeGraph.Serialization;
 
@@ -142,6 +143,10 @@ namespace Sprockets.Test {
             Assert.AreEqual(a,
                 b
             );
+        }
+
+        private Expression GetExpression<T>(Expression<Func<T>> input) {
+            return input;
         }
 
         private T TestScripting<T>(T input) {

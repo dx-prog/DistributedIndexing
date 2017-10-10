@@ -40,7 +40,12 @@ namespace Sprockets.LargeGraph.Serialization.IGL {
         /// <summary>
         ///     The Token relates to an Type that is initialized through Set Fields
         /// </summary>
-        Constructable = 8,
+        FieldSettable = 8,
+
+        /// <summary>
+        ///     The Token relates to a type that has a special construction contract
+        /// </summary>
+        Contract = 16,
 
         /// <summary>
         ///     Internal, used to mark a Type that is likely to need iterations at being degraphed

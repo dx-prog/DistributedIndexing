@@ -74,27 +74,65 @@ namespace Sprockets.LargeGraph.Serialization {
 
         public void Execute(out Dictionary<long, object> graph) {
             var context = new IglTokenBase.IglTokenExecutionContext(this);
-
+            OnDeserializing(context);
+            BeforeTypeDefs(context);
             foreach (var token in TypeDef)
                 token.Execute(context);
+
+            BeforeConstants(context);
             foreach (var token in Constants)
                 token.Execute(context);
+
+            BeforeDeclarations(context);
             foreach (var largeObject in Declaration)
                 largeObject.Execute(context);
 
+            BeforeFastInitializations(context);
             foreach (var fastInitObject in FastInitializations)
                 fastInitObject.Execute(context);
 
+            BeforeFieldSets(context);
             foreach (var closures in FieldSets)
                 closures.Execute(context);
 
+            BeforeHeavyInitializations(context);
             foreach (var heavyInitObject in HeavyInitializations)
                 heavyInitObject.Execute(context);
 
+
+            BeforeSpecialInitializations(context);
             foreach (var special in SpecialInitializations)
                 special.Execute(context);
 
+            OnDeserialized(context);
             graph = context.Storage;
+        }
+
+        protected virtual void OnDeserializing(IglTokenBase.IglTokenExecutionContext context) {
+        }
+
+        protected virtual void OnDeserialized(IglTokenBase.IglTokenExecutionContext context) {
+        }
+
+        protected virtual void BeforeSpecialInitializations(IglTokenBase.IglTokenExecutionContext context) {
+        }
+
+        protected virtual void BeforeHeavyInitializations(IglTokenBase.IglTokenExecutionContext context) {
+        }
+
+        protected virtual void BeforeFieldSets(IglTokenBase.IglTokenExecutionContext context) {
+        }
+
+        protected virtual void BeforeFastInitializations(IglTokenBase.IglTokenExecutionContext context) {
+        }
+
+        protected virtual void BeforeDeclarations(IglTokenBase.IglTokenExecutionContext context) {
+        }
+
+        protected virtual void BeforeConstants(IglTokenBase.IglTokenExecutionContext context) {
+        }
+
+        protected virtual void BeforeTypeDefs(IglTokenBase.IglTokenExecutionContext context) {
         }
     }
 }
