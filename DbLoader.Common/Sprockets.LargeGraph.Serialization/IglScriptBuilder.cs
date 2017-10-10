@@ -219,7 +219,7 @@ namespace Sprockets.LargeGraph.Serialization {
             while (HasPressure) {
                 OnBeforeStagePump(1, 0, ref maxCycles);
                 {
-                    while (_blitwork.Execute(ProcessBlitsAndSets))
+                    while (_blitwork.Execute(ProcessBlitsAndSets) > 0)
                         if (maxCycles-- < 0)
                             throw new InvalidOperationException();
                 }
@@ -227,7 +227,7 @@ namespace Sprockets.LargeGraph.Serialization {
                 OnAfterStagePump(1, 0, ref maxCycles);
                 OnBeforeStagePump(2, 0, ref maxCycles);
                 {
-                    while (_enumerationWork.Execute(ProcessEnumerables))
+                    while (_enumerationWork.Execute(ProcessEnumerables)>0)
                         if (maxCycles-- < 0)
                             throw new InvalidOperationException();
                 }
@@ -235,7 +235,7 @@ namespace Sprockets.LargeGraph.Serialization {
                 OnAfterStagePump(2, 0, ref maxCycles);
                 OnBeforeStagePump(3, 0, ref maxCycles);
                 {
-                    while (_serializationWork.Execute(ProcessSerializables))
+                    while (_serializationWork.Execute(ProcessSerializables) > 0)
                         if (maxCycles-- < 0)
                             throw new InvalidOperationException();
                 }

@@ -45,6 +45,11 @@ namespace Sprockets.Core.Collection {
             return id;
         }
 
+        public void Clear() {
+            _backward.Clear();
+            _forward.Clear();
+        }
+
         public bool TryGetObject(TIndex id, out TObject obj) {
             return _forward.TryGetValue(id, out obj);
         }

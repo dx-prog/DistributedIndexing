@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * *********************************************************************************/
-using System.IO;
 
-namespace Sprockets.Core.DocumentIndexing {
-    public interface IBinaryDocumentIndexer : IDocumentIndexer {
-        void IndexDocument<TDocumentType>(BinaryReader source);
+namespace Sprockets.Core.DocumentIndexing.Types {
+    public class IndexingRequest {
+        public IndexingRequest(IndexingRequestDetails details) {
+            Details = details;
+        }
+
+        public IndexingRequestDetails Details { get; }
     }
 }

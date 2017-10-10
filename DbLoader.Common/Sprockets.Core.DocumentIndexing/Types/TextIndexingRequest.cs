@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * *********************************************************************************/
+
 using System.IO;
 
-namespace Sprockets.Core.DocumentIndexing {
-    public interface ITextDocumentIndexer : IDocumentIndexer {
-        void IndexDocument<TDocumentType>(TextReader source);
+namespace Sprockets.Core.DocumentIndexing.Types {
+    public class TextIndexingRequest : IndexingRequest {
+        public TextIndexingRequest(IndexingRequestDetails details,
+            TextReader content) : base(details) {
+            Content = content;
+        }
+
+        public TextReader Content { get; }
     }
 }

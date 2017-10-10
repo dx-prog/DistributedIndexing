@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * *********************************************************************************/
+
 using System;
+using Sprockets.Core.DocumentIndexing.Types;
 
-namespace Sprockets.Core.DocumentIndexing {
-
+namespace Sprockets.Core.DocumentIndexing.Indexers {
     public interface IDocumentIndexer {
         string Name { get; }
         Version Version { get; }
         string[] QueryLangauges { get; }
-        void Search<TDocumentType>(string language, string query);
+        IndexingRequestDetails[] SupportedFormats { get; }
+        void Search<TDocumentType>(TextSearch search);
     }
 }

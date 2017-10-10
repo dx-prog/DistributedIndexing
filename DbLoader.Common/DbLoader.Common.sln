@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentExplorerStudio", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprockets.Scripting", "Sprockets.Scripting\Sprockets.Scripting.csproj", "{BC4870A8-52D6-407D-A518-7B8820B60FA1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprockets.DocumentIndexer.Lucene", "Sprockets.DocumentIndexer.Lucene\Sprockets.DocumentIndexer.Lucene.csproj", "{BDE97323-DB21-4AA4-825D-5DF828CE4170}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{BC4870A8-52D6-407D-A518-7B8820B60FA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC4870A8-52D6-407D-A518-7B8820B60FA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC4870A8-52D6-407D-A518-7B8820B60FA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDE97323-DB21-4AA4-825D-5DF828CE4170}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDE97323-DB21-4AA4-825D-5DF828CE4170}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDE97323-DB21-4AA4-825D-5DF828CE4170}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDE97323-DB21-4AA4-825D-5DF828CE4170}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
