@@ -1,4 +1,4 @@
-# To Database?
+# Project 2DB 
 
 This is a research project consisting of various tools designed
 to allow users to load, edit, explore, and delete data of various types
@@ -7,20 +7,38 @@ tools, or command line from various sources.
 
 
 ---
-# TOOL SET
+# FEATURE SET TODO
+The following is a set of ideal features for my research project.
 
-## Sprockets Large Graph Serialization
-Status: Beta
-Converts CLR object large graphs into instructions that can be saved and loaded.
-The class avoids the use of recursion. Useful for storing graphs and networks
-which store complex related data. 
+## SEARCH DATABASE FEATURES
+The intent is to support saving and searching objects into searchable 
+databases where in the search is handled by services, and the queries
+and scripting interface are abstracted away from database concerns. The
+user of the system is intended only to have to worry about their specific
+programming language, and not the underlying connectivity to any particular
+database, or set of databases in the case of distributed search.
 
-This library supports 3 forms of serialization for:
-* Serializable Classes (ISerializable)
-* Structures, Primatives, and Arrays thereof
-* IEnumerables with some limitations
+## SEARCHABLE FORMATS
+The intent is to be able to store documents of various formats into a
+database for seach wherein the extract is handled by services. The formats
+intended to be supported are as follows:
+* XML
+* JSON
+* HTML
+* PLAIN
+* OPENXML
 
+## SEARCH METHODS
+My desire is to make the project scriptable and usable in multiple languages. The 
+current set of languages targeted are as follows:
+* CSHARP
+* Python (IronPython)
+* Ruby (IronRuby)
+* F#
 
+## ANALYSIS FEATURES
+This project is intended to make exploring data and the relationships there-in (data-mining)
+easier. 
 
 ---
 ## License
