@@ -49,7 +49,7 @@ namespace Sprockets.Core.DocumentIndexing.Extractors {
         }
 
 
-        public static IEnumerator HtmlDegrapher(SimpleDegrapher caller, object arg) {
+        public static IEnumerator HtmlDegrapher(IObjectDegrapher caller, object arg) {
             switch (arg) {
                 case ICharacterData text:
 

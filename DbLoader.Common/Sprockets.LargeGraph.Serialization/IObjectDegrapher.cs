@@ -1,6 +1,6 @@
 ﻿/***********************************************************************************
  * Copyright 2017  David Garcia
- *      
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,22 +14,12 @@
  * limitations under the License.
  * *********************************************************************************/
 
-using System;
+using System.Collections.Generic;
 
-namespace Sprockets.Core.Collection {
-    /// <summary>
-    ///     Used to track data that has a 1:1 mapping to a Int64
-    /// </summary>
-    /// <typeparam name="TObject"></typeparam>
-    /// <remarks>Using tuple to grant support for mapping null</remarks>
-    [Serializable]
-    public class TwoWayLongMap<TObject> : TwoWayMap<Tuple<TObject>, long> {
-        public bool TryGetOrAdd(ref long idInc, Tuple<TObject> obj, out long finalId) {
-            if (TryGetId(obj, out finalId))
-                return false;
-
-            finalId = Map(idInc++, obj);
-            return true;
-        }
+namespace Sprockets.LargeGraph.Serialization {
+    public interface IObjectDegrapher {
+        List<object[]> KnowledgeBase { get; }
+        void Reset(long? newIdStartPoint = null);
+        bool LoadObject(object obj);
     }
 }

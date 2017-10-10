@@ -37,7 +37,7 @@ namespace Sprockets.Core.DocumentIndexing.Extractors {
             return string.Join(Environment.NewLine, degrapher.KnowledgeBase.SelectMany(x => x).OfType<string>());
         }
 
-        public static IEnumerator JsonDegrapher(SimpleDegrapher caller, object arg) {
+        public static IEnumerator JsonDegrapher(IObjectDegrapher caller, object arg) {
             switch (arg) {
                 case JToken array:
                     foreach (var entry in array.Children())

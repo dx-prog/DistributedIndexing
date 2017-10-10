@@ -50,15 +50,15 @@ namespace Sprockets.Core.Collection {
             _forward.Clear();
         }
 
-        public bool TryGetObject(TIndex id, out TObject obj) {
+        public virtual bool TryGetObject(TIndex id, out TObject obj) {
             return _forward.TryGetValue(id, out obj);
         }
 
-        public bool TryGetId(TObject obj, out TIndex id) {
+        public virtual bool TryGetId(TObject obj, out TIndex id) {
             return _backward.TryGetValue(obj, out id);
         }
 
-        public TIndex GetId(TObject instance) {
+        public virtual TIndex GetId(TObject instance) {
             if (TryGetId(instance, out var id))
                 return id;
 

@@ -115,9 +115,9 @@ namespace Sprockets.LargeGraph.Serialization {
 
         public virtual long RegisterObject(object obj, out TokenObjectCategory type, bool root = false) {
             type = TokenObjectCategory.Unknown;
-            if (obj == null)
-                return long.MinValue;
-
+            var datum = Tuple.Create(obj);
+            if (TryRegisterNullConstantForNullObject(obj, root, datum, out var registerObject))
+                return registerObject;
 
             var objectType = obj.GetType();
             RegisterType(objectType);
@@ -126,7 +126,7 @@ namespace Sprockets.LargeGraph.Serialization {
                 _tokenType[objectType] = type = TokenObjectCategory.Value;
                 // will get the current id, or all add a new entry and update the existing
                 // ID counter
-                if (!_constants.TryGetOrAdd(ref _idCounter, obj, out var cosntId))
+                if (!_constants.TryGetOrAdd(ref _idCounter, datum, out var cosntId))
                     return cosntId;
 
                 type |= TokenObjectCategory.NeedsUngraphing;
@@ -142,7 +142,7 @@ namespace Sprockets.LargeGraph.Serialization {
             }
 
             // true if the object is added the first time
-            if (_instances.TryGetOrAdd(ref _idCounter, obj, out var objectId)) {
+            if (_instances.TryGetOrAdd(ref _idCounter, datum, out var objectId)) {
                 type = BackLogSerialization(obj);
                 type |= TokenObjectCategory.NeedsUngraphing;
                 _tokenType[objectType] = type;
@@ -227,7 +227,7 @@ namespace Sprockets.LargeGraph.Serialization {
                 OnAfterStagePump(1, 0, ref maxCycles);
                 OnBeforeStagePump(2, 0, ref maxCycles);
                 {
-                    while (_enumerationWork.Execute(ProcessEnumerables)>0)
+                    while (_enumerationWork.Execute(ProcessEnumerables) > 0)
                         if (maxCycles-- < 0)
                             throw new InvalidOperationException();
                 }
@@ -250,7 +250,6 @@ namespace Sprockets.LargeGraph.Serialization {
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="stageId"></param>
         /// <param name="stageType">Any number other then zero to indicate and track custom logic</param>
@@ -313,6 +312,26 @@ namespace Sprockets.LargeGraph.Serialization {
         /// <returns></returns>
         protected virtual bool TryContractSaving(Type objType, object o) {
             return false;
+        }
+
+        private bool TryRegisterNullConstantForNullObject(object obj, bool root, Tuple<object> datum, out long registerObject) {
+            registerObject = 0;
+            if (obj != null)
+                return false;
+
+            _constants.TryGetOrAdd(ref _idCounter, datum, out var cosntId);
+            if (root)
+                _script.RootObjects.Add(cosntId);
+
+            _script.Constants.AddLast(
+                new IglDeclareValue(
+                    cosntId,
+                    null,
+                    null
+                ));
+
+            registerObject = cosntId;
+            return true;
         }
 
         private Tuple<int, int> GetArrayInitDetails(object o) {

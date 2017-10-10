@@ -13,26 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * *********************************************************************************/
-using System;
-using System.Collections.Generic;
+
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sprockets.Core.DocumentIndexing.Extractors;
 using Sprockets.Core.DocumentIndexing.Types;
 
-namespace Sprockets.Test.DocumentIndexing
-{
+namespace Sprockets.Test.DocumentIndexing {
     [TestClass]
-    public class TextExtractorTests
-    {
-
+    public class TextExtractorTests {
         [TestMethod]
         public void HtmlExtractorTest() {
-
             var extractor = new DefaultHtmlTextExtractor();
 
             var finalHtml = extractor.ExtractText(

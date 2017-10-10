@@ -27,7 +27,7 @@ namespace Sprockets.LargeGraph.Serialization {
     /// <summary>
     ///     This class is used to help degraph complex nest objects
     /// </summary>
-    public class SimpleDegrapher {
+    public class SimpleDegrapher : IObjectDegrapher {
         private readonly WorkBacklog<SimpleDegrapher, object> _backlog;
         private readonly TwoWayLongMap<object> _dataMap = new TwoWayLongMap<object>();
         private long _ids;
@@ -36,8 +36,9 @@ namespace Sprockets.LargeGraph.Serialization {
             _backlog = new WorkBacklog<SimpleDegrapher, object>(this);
         }
 
+        public Func<IObjectDegrapher, object, IEnumerator> CustomerEnumerator { get; set; }
+
         public List<object[]> KnowledgeBase { get; } = new List<object[]>();
-        public Func<SimpleDegrapher,object, IEnumerator> CustomerEnumerator { get; set; }
 
         public void Reset(long?newIdStartPoint = null) {
             KnowledgeBase.Clear();
@@ -51,7 +52,7 @@ namespace Sprockets.LargeGraph.Serialization {
             if (obj == null)
                 return _backlog.HasWork;
 
-            if (!_dataMap.TryGetOrAdd(ref _ids, obj, out var actualId))
+            if (!_dataMap.TryGetOrAdd(ref _ids,Tuple.Create(obj), out var actualId))
                 return _backlog.HasWork;
 
 
@@ -72,8 +73,18 @@ namespace Sprockets.LargeGraph.Serialization {
             return _backlog.HasWork;
         }
 
+        public bool PumpFor(TimeSpan fromSeconds) {
+            using (var watch = new DisposableStopwatch()) {
+                while (Pump())
+                    if (watch.Elapsed > fromSeconds)
+                        break;
+            }
 
-        public static IEnumerator GenericDegrapher(SimpleDegrapher caller, object arg) {
+            return _backlog.HasWork;
+        }
+
+
+        public static IEnumerator GenericDegrapher(IObjectDegrapher caller, object arg) {
             var type = arg.GetType().GetElementTypeOfEnumerable();
             if (type == null) {
                 yield return arg;
@@ -86,7 +97,7 @@ namespace Sprockets.LargeGraph.Serialization {
                 yield return child;
         }
 
-        public static IEnumerator XElementDegrapher(SimpleDegrapher caller, object arg) {
+        public static IEnumerator XElementDegrapher(IObjectDegrapher caller, object arg) {
             switch (arg) {
                 case XAttribute att:
                     yield return att.Name;
@@ -119,16 +130,6 @@ namespace Sprockets.LargeGraph.Serialization {
             }
         }
 
-        public bool PumpFor(TimeSpan fromSeconds) {
-            using (var watch = new DisposableStopwatch()) {
-                while (Pump())
-                    if (watch.Elapsed > fromSeconds)
-                        break;
-            }
-
-            return _backlog.HasWork;
-        }
-
 
         protected virtual IEnumerable<object> Extract(object obj) {
             if (obj == null)
@@ -136,7 +137,7 @@ namespace Sprockets.LargeGraph.Serialization {
 
             var callback = CustomerEnumerator ?? GenericDegrapher;
 
-            var enumerator = callback(this,obj);
+            var enumerator = callback(this, obj);
 
             if (enumerator == null)
                 return new object[0];
@@ -145,8 +146,8 @@ namespace Sprockets.LargeGraph.Serialization {
 
 
             while (enumerator.MoveNext())
-                if(!_dataMap.TryGetId(enumerator.Current, out _))
-                returnObject.Add(enumerator.Current);
+                if (!_dataMap.TryGetId(Tuple.Create(enumerator.Current), out _))
+                    returnObject.Add(enumerator.Current);
 
             return returnObject;
         }

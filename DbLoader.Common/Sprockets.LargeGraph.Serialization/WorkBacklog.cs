@@ -15,12 +15,12 @@
  * *********************************************************************************/
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace Sprockets.LargeGraph.Serialization {
     [Serializable]
     public class WorkBacklog<TContext, TData> {
-        private readonly Stack<TData> _backlog = new Stack<TData>();
+        private readonly ConcurrentStack<TData> _backlog = new ConcurrentStack<TData>();
 
         public WorkBacklog(TContext context) {
             Context = context;
@@ -37,8 +37,8 @@ namespace Sprockets.LargeGraph.Serialization {
             if (_backlog.Count == 0)
                 return 0;
 
-            var pop = _backlog.Pop();
-            work(Context, pop);
+            if (_backlog.TryPop(out var pop))
+                work(Context, pop);
             return _backlog.Count;
         }
 

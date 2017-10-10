@@ -13,27 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * *********************************************************************************/
- using System;
-using System.Collections.Generic;
+
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sprockets.LargeGraph.Serialization;
 
-namespace Sprockets.Test
-{
+namespace Sprockets.Test {
     [TestClass]
-    public class SimpleDegrapherTests
-    {
+    public class SimpleDegrapherTests {
         [TestMethod]
         public void CanDegraphXElement() {
-
             var xmlDegrapher = new SimpleDegrapher {CustomerEnumerator = SimpleDegrapher.XElementDegrapher};
 
-            XElement a = new XElement("root");
-            XElement b=new XElement("child");
+            var a = new XElement("root");
+            var b = new XElement("child");
             b.Value = "hello world";
             a.Add(b);
 
@@ -41,9 +35,11 @@ namespace Sprockets.Test
             xmlDegrapher.Pump();
             xmlDegrapher.Pump();
 
-            var stringContent=xmlDegrapher.KnowledgeBase.SelectMany(m => m).OfType<string>().ToArray();
+            var stringContent = xmlDegrapher.KnowledgeBase.SelectMany(m => m).OfType<string>().ToArray();
 
             Assert.IsTrue(stringContent.Contains("hello world"));
         }
     }
+
+    
 }

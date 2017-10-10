@@ -23,13 +23,13 @@ namespace Sprockets.LargeGraph.Serialization.IGL {
     [Serializable]
     public class IglDeclareValue : IglTokenBase {
         public IglDeclareValue(long index, IglRegisterType type, object value) : base(index) {
-            TypeId = type.Index;
+            TypeId = type?.Index;
             Value = value;
         }
 
         public object Value { get; protected set; }
 
-        public long TypeId { get; protected set; }
+        public long ?TypeId { get; protected set; }
 
         public override void Execute(IglTokenExecutionContext context) {
             context.Storage[Index] = Value;

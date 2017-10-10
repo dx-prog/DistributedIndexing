@@ -47,6 +47,21 @@ namespace Sprockets.Test {
             Assert.AreEqual(expected.Length, actual.Length);
             QuickCheck(expected, actual);
         }
+        [TestMethod]
+        public void CanCreateFromArrayWithNulls()
+        {
+            var expected = new[] {
+                CreateClassOfPrimatives(1),
+                null,
+                CreateClassOfPrimatives(2)
+            };
+            expected[0].StringValue = null;
+            var actual = TestScripting(expected);
+
+
+            Assert.AreEqual(expected.Length, actual.Length);
+            QuickCheck(expected, actual);
+        }
 
         [TestMethod]
         public void CanCreateFromHashSet() {
@@ -178,6 +193,9 @@ namespace Sprockets.Test {
 
         [Serializable]
         public class SimplePrimatives {
+            public SimplePrimatives() {
+                StringValue = "DEFAULT";
+            }
             public int IntValue { get; set; }
             public int LongValue { get; set; }
             public string StringValue { get; set; }

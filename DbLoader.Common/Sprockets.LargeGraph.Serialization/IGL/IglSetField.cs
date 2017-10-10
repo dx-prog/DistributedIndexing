@@ -32,11 +32,11 @@ namespace Sprockets.LargeGraph.Serialization.IGL {
 
         public override void Execute(IglTokenExecutionContext context) {
             var instance = context.Storage[ObjectId];
+            if (instance == null)
+                return;
             var value = context.Storage[ValueId];
             var intanceType = instance.GetType();
 
-            if (intanceType.Name.Contains("Inverted")) {
-            }
             var fi = intanceType.GetField(FieldName,
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
