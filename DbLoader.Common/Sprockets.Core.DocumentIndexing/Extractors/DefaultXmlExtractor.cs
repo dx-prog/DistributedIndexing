@@ -18,7 +18,6 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Xml.Linq;
 using Sprockets.Core.DocumentIndexing.Types;
 using Sprockets.LargeGraph.Serialization;
@@ -35,10 +34,9 @@ namespace Sprockets.Core.DocumentIndexing.Extractors {
             using (var reader = new StreamReader(stream, details.Encoding, false, 16, true)) {
                 var doc = XDocument.Load(reader);
 
-                var degrapher = new SimpleDegrapher();
+                var degrapher = new TreeOrderDegrapher {CustomerEnumerator = SimpleDegrapher.XElementDegrapher};
                 degrapher.LoadObject(doc);
-                if (degrapher.PumpFor(TimeSpan.FromSeconds(1)))
-                    throw new SerializationException();
+
 
                 return string.Join(Environment.NewLine, degrapher.KnowledgeBase.SelectMany(x => x).OfType<string>());
             }

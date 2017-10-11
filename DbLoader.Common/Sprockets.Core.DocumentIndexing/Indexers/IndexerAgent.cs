@@ -65,6 +65,7 @@ namespace Sprockets.Core.DocumentIndexing.Indexers {
                         request.ExtractionResult.SetSuccess(_cache.Save(
                             request.RemoteSourceIdentity,
                             request.FriendlyName,
+                            request.MimeType,
                             text));
                     }
                     catch (Exception ex) {

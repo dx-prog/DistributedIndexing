@@ -19,31 +19,83 @@ using System.IO;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sprockets.Core.DocumentIndexing.Extractors;
+using Sprockets.Core.DocumentIndexing.Host;
 using Sprockets.Core.DocumentIndexing.Types;
 
 namespace Sprockets.Test.DocumentIndexing {
     [TestClass]
     public class TextExtractorTests {
-        [TestMethod]
-        public void HtmlExtractorTest() {
-            var extractor = new DefaultHtmlExtractor();
-
-            var finalHtml = extractor.ExtractText(
-                IndexingRequestDetails.Create<DefaultHtmlExtractor>(
-                    CultureInfo.InvariantCulture,
-                    Encoding.Unicode, 
-                    "text/html",
-                    string.Empty),
-               new MemoryStream(Encoding.Unicode.GetBytes(
-                       @"<html>
+        public Stream GetTestObjectStream() {
+            return new MemoryStream(Encoding.Unicode.GetBytes(
+                @"<html>
                         <head>
                         </head>
                        <body>
                         <p>1 <i> 2 </i> <b>3</b> </p>_<span>4</span>
                         </body>
                     </html>"
-                    ))
-            );
+            ));
+        }
+
+        [TestMethod]
+        public void ExtractorHostTestTextPlain() {
+            var host = new ExtractorHost();
+            host.RegisterScopedExtractor<PassthroughExtractor>();
+            host.RegisterScopedExtractor<DefaultHtmlExtractor>();
+            host.Initialize();
+            using (host.BeginServiceScope(out var extractor)) {
+                var detailsForHtml = new IndexingRequestDetails(CultureInfo.InvariantCulture,
+                    Encoding.Unicode,
+                    "text/plain",
+                    string.Empty,
+                    string.Empty);
+                var finalHtml = extractor.ExtractText(
+                    detailsForHtml,
+                    GetTestObjectStream()
+                );
+                Assert.IsTrue(finalHtml.Contains("1"));
+                Assert.IsTrue(finalHtml.Contains("2"));
+                Assert.IsTrue(finalHtml.Contains("3"));
+                Assert.IsTrue(finalHtml.Contains("_"));
+                Assert.IsTrue(finalHtml.Contains("4"));
+                Assert.IsTrue(finalHtml.Contains("html"));
+            }
+        }
+
+        [TestMethod]
+        public void ExtractorHostTestTextHtml() {
+            var host = new ExtractorHost();
+            host.RegisterScopedExtractor<PassthroughExtractor>();
+            host.RegisterScopedExtractor<DefaultHtmlExtractor>();
+            host.Initialize();
+            using (host.BeginServiceScope(out var extractor)) {
+                var detailsForHtml = new IndexingRequestDetails(CultureInfo.InvariantCulture,
+                    Encoding.Unicode,
+                    "text/html",
+                    string.Empty,
+                    string.Empty);
+                var finalHtml = extractor.ExtractText(
+                    detailsForHtml,
+                    GetTestObjectStream()
+                );
+                Assert.IsTrue(finalHtml.Contains("1"));
+                Assert.IsTrue(finalHtml.Contains("2"));
+                Assert.IsTrue(finalHtml.Contains("3"));
+                Assert.IsTrue(finalHtml.Contains("_"));
+                Assert.IsTrue(finalHtml.Contains("4"));
+                Assert.IsTrue(!finalHtml.Contains("html"));
+            }
+        }
+
+        [TestMethod]
+        public void HtmlExtractorTest() {
+            var extractor = new DefaultHtmlExtractor();
+            var details = IndexingRequestDetails.Create<DefaultHtmlExtractor>(
+                CultureInfo.InvariantCulture,
+                Encoding.Unicode,
+                "text/html",
+                string.Empty);
+            var finalHtml = extractor.ExtractText(details, GetTestObjectStream());
             Assert.IsTrue(finalHtml.Contains("1"));
             Assert.IsTrue(finalHtml.Contains("2"));
             Assert.IsTrue(finalHtml.Contains("3"));

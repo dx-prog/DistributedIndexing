@@ -40,6 +40,14 @@ namespace Sprockets.Core.IO {
             return "/" + prefix;
         }
 
+        public static string AssureTrailingPathSlash(string path) {
+            path = CleanBadSlashes(path);
+            if (path.EndsWith("\\"))
+                return path;
+
+            return path + "\\";
+        }
+
         /// <summary>
         ///     Make sure all the dots and double dots are remove
         /// </summary>

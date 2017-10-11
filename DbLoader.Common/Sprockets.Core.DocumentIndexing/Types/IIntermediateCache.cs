@@ -18,12 +18,12 @@ using System.Collections.Generic;
 
 namespace Sprockets.Core.DocumentIndexing.Types {
     /// <summary>
-    /// Intermediate cache is only responsible for storing content until it pulled into the
-    /// final database
+    ///     Intermediate cache is only responsible for storing content until it pulled into the
+    ///     final database
     /// </summary>
     public interface IIntermediateCache {
         void MarkAsIndex(string fileId);
         IEnumerable<TextIndexingRequest> GetReadyFiles();
-        string Save(string remoteSourceIdentity, string friendlyName, string text);
+        string Save(string remoteSourceIdentity, string friendlyName, string originalMimeType, string text);
     }
 }

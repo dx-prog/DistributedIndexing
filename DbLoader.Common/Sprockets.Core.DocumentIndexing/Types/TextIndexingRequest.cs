@@ -23,31 +23,37 @@ namespace Sprockets.Core.DocumentIndexing.Types {
         private readonly Func<TextIndexingRequest, Stream> _stream;
 
         public TextIndexingRequest(
+            string localSourceIdentity,
             string remoteSourceIdentity,
             string friendlyName,
             IndexingRequestDetails details,
             Stream content) : base(details) {
             _stream = ignored => content;
             RemoteSourceIdentity = remoteSourceIdentity;
+            LocalSourceIdentity = localSourceIdentity;
             FriendlyName = friendlyName;
         }
 
         public TextIndexingRequest(
+            string localSourceIdentity,
             string remoteSourceIdentity,
             string friendlyName,
             IndexingRequestDetails details,
             Func<TextIndexingRequest, Stream> content) : base(details) {
             _stream = content;
             RemoteSourceIdentity = remoteSourceIdentity;
+            LocalSourceIdentity = localSourceIdentity;
             FriendlyName = friendlyName;
         }
 
         public string FriendlyName { get; }
 
+        public string LocalSourceIdentity { get; }
         public string RemoteSourceIdentity { get; }
 
         public Stream Content => _stream(this);
 
         public TryOperationResult<string> ExtractionResult { get; } = new TryOperationResult<string>();
+        public string MimeType => Details.MimeType;
     }
 }

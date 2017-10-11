@@ -14,6 +14,8 @@
  * limitations under the License.
  * *********************************************************************************/
 
+using System.Collections.Generic;
+
 namespace Sprockets.Core.DocumentIndexing.Types {
     public class SearchResult {
         /// <summary>
@@ -36,6 +38,15 @@ namespace Sprockets.Core.DocumentIndexing.Types {
         ///     Get or set the identity used to retrieve a specific text documents content
         ///     from the text repository
         /// </summary>
-        public string IndexIdentity { get; set; }
+        public string LocalSourceIdentity { get; set; }
+
+        public Dictionary<string, List<string>> Statistics { get; } = new Dictionary<string, List<string>>();
+
+        public void AddStatistic(string namedStatistic, string tuple) {
+            if (!Statistics.TryGetValue(namedStatistic, out var results))
+                Statistics[namedStatistic] = results = new List<string>();
+
+            results.Add(tuple);
+        }
     }
 }
