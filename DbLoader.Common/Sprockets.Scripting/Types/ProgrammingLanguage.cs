@@ -16,25 +16,11 @@
 
 using System;
 
-namespace Sprockets.Scripting.Types
-{
+namespace Sprockets.Scripting.Types {
     /// <summary>
-    /// Descripts programming langauges that can be used
+    ///     Descripts programming langauges that can be used
     /// </summary>
-    public class ProgrammingLanguage
-    {
-        public ProgrammingLanguage(Version version, string name, string standard)
-        {
-            Version = version;
-            Name = name;
-            Standard = standard;
-        }
-
-        public string Standard { get; }
-        public Version Version { get; }
-        public string Name { get; }
-
-
+    public class ProgrammingLanguage {
         public static readonly ProgrammingLanguage CSharp5 = new ProgrammingLanguage(
             Version.Parse("5.0"),
             "CSHARP",
@@ -52,5 +38,15 @@ namespace Sprockets.Scripting.Types
             "CSHARP",
             "ROSYLN"
         );
+
+        public ProgrammingLanguage(Version version, string name, string standard) {
+            Version = version;
+            Name = name;
+            Standard = standard;
+        }
+
+        public string Standard { get; }
+        public Version Version { get; }
+        public string Name { get; }
     }
 }

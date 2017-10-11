@@ -34,6 +34,7 @@ namespace Sprockets.LargeGraph.Serialization.IGL {
             var instance = context.Storage[ObjectId];
             if (instance == null)
                 return;
+
             var value = context.Storage[ValueId];
             var intanceType = instance.GetType();
 

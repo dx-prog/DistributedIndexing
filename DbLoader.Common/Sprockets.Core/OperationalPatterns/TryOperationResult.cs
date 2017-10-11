@@ -27,11 +27,10 @@ namespace Sprockets.Core.OperationalPatterns {
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class TryOperationResult<T> {
-        private int _isSet;
+        private readonly ManualResetEvent _hasSet = new ManualResetEvent(false);
         private T _result;
-
         public Exception Failure { get; private set; }
-        public bool IsSet => _isSet == 1;
+        public bool IsSet => _hasSet.WaitOne(0);
 
         public T Result {
             get {
@@ -47,32 +46,46 @@ namespace Sprockets.Core.OperationalPatterns {
 
         public bool IsSuccess { get; private set; }
 
-        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
-        public bool SetSuccess(T success, out bool isNotSet) {
-            RuntimeHelpers.PrepareConstrainedRegions();
-            try {
-            }
-            finally {
-                AssertNotSet(out isNotSet);
-                if (isNotSet) {
-                    IsSuccess = true;
-                    _result = success;
-                }
-            }
-            return isNotSet;
+        /// <summary>
+        ///     Waits for this result to be udpated
+        /// </summary>
+        /// <param name="milliseconds"></param>
+        /// <returns></returns>
+        public bool WaitForChange(int milliseconds = 0) {
+            return _hasSet.WaitOne(milliseconds);
         }
 
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
-        public bool SetFailure(Exception failure, out bool isNotSet) {
+        public bool SetSuccess(T success) {
             RuntimeHelpers.PrepareConstrainedRegions();
             try {
             }
             finally {
-                AssertNotSet(out isNotSet);
-                if (isNotSet)
-                    Failure = failure;
+                lock (_hasSet) {
+                    if (!IsSet) {
+                        IsSuccess = true;
+                        _result = success;
+                        _hasSet.Set();
+                    }
+                }
             }
-            return isNotSet;
+            return IsSet;
+        }
+
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+        public bool SetFailure(Exception failure) {
+            RuntimeHelpers.PrepareConstrainedRegions();
+            try {
+            }
+            finally {
+                lock (_hasSet) {
+                    if (!IsSet) {
+                        Failure = failure;
+                        _hasSet.Set();
+                    }
+                }
+            }
+            return IsSet;
         }
 
         public void AssertSuccess() {
@@ -86,14 +99,21 @@ namespace Sprockets.Core.OperationalPatterns {
                 throw new InvalidOperationException();
         }
 
-        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
-        private void AssertNotSet(out bool isNotSet) {
-            RuntimeHelpers.PrepareConstrainedRegions();
+        public static TryOperationResult<T> Run(Func<T> work) {
+            var result = new TryOperationResult<T>();
             try {
+                result.SetSuccess(work());
             }
-            finally {
-                isNotSet = Interlocked.Exchange(ref _isSet, 1) == 0;
+            catch (Exception ex) {
+                result.SetFailure(ex);
             }
+            return result;
+        }
+
+        public static TryOperationResult<T> SuccessFrom(T i) {
+            var result = new TryOperationResult<T>();
+            result.SetSuccess(i);
+            return result;
         }
     }
 }

@@ -52,7 +52,7 @@ namespace Sprockets.LargeGraph.Serialization {
             if (obj == null)
                 return _backlog.HasWork;
 
-            if (!_dataMap.TryGetOrAdd(ref _ids,Tuple.Create(obj), out var actualId))
+            if (!_dataMap.TryGetOrAdd(ref _ids, Tuple.Create(obj), out var actualId))
                 return _backlog.HasWork;
 
 

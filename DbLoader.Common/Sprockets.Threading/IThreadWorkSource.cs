@@ -1,6 +1,6 @@
 ﻿/***********************************************************************************
  * Copyright 2017  David Garcia
- * 
+ *      
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,14 +14,16 @@
  * limitations under the License.
  * *********************************************************************************/
 
-using System;
+using System.Threading;
+using Sprockets.Core.OperationalPatterns;
 
-namespace Sprockets.Scripting {
-    public abstract class ScriptableHost : IServiceProvider {
-        public virtual object GetService(Type serviceType) {
-            return null;
-        }
+namespace Sprockets.Threading {
+    public interface IThreadWorkSource {
+        bool TryGetWork(out DispatchedWork work);
+        TryOperationResult<object> PostWork(CancellationToken token, DispatchedWork callback);
 
-        public abstract void ExecuteCommand(string command, params object[] args);
+        TryOperationResult<object> SendWork(
+            CancellationToken token,
+            DispatchedWork callback);
     }
 }

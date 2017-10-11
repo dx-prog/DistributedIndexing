@@ -50,7 +50,7 @@ namespace Sprockets.Graph {
         public IEnumerable<IGraphNode<T>> Search(GraphNodeVisitationControl<T> visitationControl,
             NodeSearch<T> predicate) {
             var explorer = visitationControl ?? new GraphNodeVisitationControl<T>();
-        
+
             var previousPredicate = predicate;
             predicate = (ctx, wanderPoint) => {
                 var pos = ctx.Cursor;
@@ -71,6 +71,7 @@ namespace Sprockets.Graph {
                     // check the current node before moving outward
                     if (predicate(context, context.Cursor))
                         yield return context.Cursor;
+
                     if (context.Closed)
                         yield break;
                     // the predicate can opt out of wandering
@@ -82,11 +83,12 @@ namespace Sprockets.Graph {
 
                     var pos = context.Cursor;
                     foreach (var n in explorer.GetWanderingApproach(context, pos)) {
-                       if(context.SearchBehavior(context, n))
-                        yield return context.Cursor;
+                        if (context.SearchBehavior(context, n))
+                            yield return context.Cursor;
 
                         if (context.Closed)
                             yield break;
+
                         if (!context.AllowWanderingThisCycle)
                             break;
                         if (context.CurrentDepth == 0)

@@ -19,7 +19,7 @@ using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sprockets.LargeGraph.Serialization;
 
-namespace Sprockets.Test {
+namespace Sprockets.Test.DegrapherTesting {
     [TestClass]
     public class SimpleDegrapherTests {
         [TestMethod]

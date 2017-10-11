@@ -29,8 +29,9 @@ namespace Sprockets.Scripting.Types {
 
         public IReadOnlyCollection<CodeFile> Files => _codeFile.AsReadOnly();
         public IReadOnlyCollection<string> References => _references.AsReadOnly();
-        public ProgrammingLanguage Language { get; }
         public string ProjectName { get; set; }
+        public ProgrammingLanguage Language { get; }
+
         public void AddReference(string file) {
             _references.Add(file);
         }
@@ -41,6 +42,7 @@ namespace Sprockets.Scripting.Types {
             AddReference(asm.Location);
             return type.Namespace;
         }
+
         public void AddCodeFile(CodeFile file) {
             if (file.Language.Name != Language.Name)
                 throw new ArgumentException();
@@ -49,9 +51,8 @@ namespace Sprockets.Scripting.Types {
         }
 
         public void AddReferences(Assembly[] assemblies) {
-            foreach (var file in assemblies) {
+            foreach (var file in assemblies)
                 _references.Add(file.Location);
-            }
         }
     }
 }

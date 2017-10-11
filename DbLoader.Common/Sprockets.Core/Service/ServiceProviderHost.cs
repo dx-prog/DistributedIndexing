@@ -44,10 +44,10 @@ namespace Sprockets.Core.Service {
                 var result = new TryOperationResult<TResult>();
 
                 try {
-                    result.SetSuccess(operation(Provider), out _);
+                    result.SetSuccess(operation(Provider));
                 }
                 catch (Exception ex) {
-                    result.SetFailure(ex, out _);
+                    result.SetFailure(ex);
                 }
 
                 return result;

@@ -314,7 +314,10 @@ namespace Sprockets.LargeGraph.Serialization {
             return false;
         }
 
-        private bool TryRegisterNullConstantForNullObject(object obj, bool root, Tuple<object> datum, out long registerObject) {
+        private bool TryRegisterNullConstantForNullObject(object obj,
+            bool root,
+            Tuple<object> datum,
+            out long registerObject) {
             registerObject = 0;
             if (obj != null)
                 return false;

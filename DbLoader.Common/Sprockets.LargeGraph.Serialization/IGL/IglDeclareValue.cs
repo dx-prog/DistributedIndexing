@@ -29,7 +29,7 @@ namespace Sprockets.LargeGraph.Serialization.IGL {
 
         public object Value { get; protected set; }
 
-        public long ?TypeId { get; protected set; }
+        public long?TypeId { get; protected set; }
 
         public override void Execute(IglTokenExecutionContext context) {
             context.Storage[Index] = Value;

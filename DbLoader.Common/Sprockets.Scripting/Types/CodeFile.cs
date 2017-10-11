@@ -27,7 +27,7 @@ namespace Sprockets.Scripting.Types {
 
         public string FileName { get; set; }
 
-        public string Content { get;  }
+        public string Content { get; }
 
         public ProgrammingLanguage Language { get; }
     }

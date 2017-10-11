@@ -13,15 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * *********************************************************************************/
-
-using System;
-
-namespace Sprockets.Scripting {
-    public abstract class ScriptableHost : IServiceProvider {
-        public virtual object GetService(Type serviceType) {
-            return null;
-        }
-
-        public abstract void ExecuteCommand(string command, params object[] args);
+namespace Sprockets.Core.DocumentIndexing.Host {
+    internal class TcpServiceAgent {
     }
 }

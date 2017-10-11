@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * *********************************************************************************/
-
 using System;
 
-namespace Sprockets.Scripting {
-    public abstract class ScriptableHost : IServiceProvider {
-        public virtual object GetService(Type serviceType) {
-            return null;
-        }
+namespace Sprockets.Core.DocumentIndexing.Types {
+    [Serializable]
+    public class ComputationResults {
+        public string Name { get; set; }
 
-        public abstract void ExecuteCommand(string command, params object[] args);
+        /// <summary>
+        ///     Indicating the format of the data
+        /// </summary>
+        public string DataFormat { get; set; }
+
+        /// <summary>
+        ///     Using string as the data might be any number of data types (double, vector, complex, etc)
+        ///     and don't want to limited the network or system traffic by specific data structures.
+        /// </summary>
+        public string Results { get; set; }
     }
 }

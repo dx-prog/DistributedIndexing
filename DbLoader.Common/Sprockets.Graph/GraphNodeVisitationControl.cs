@@ -72,7 +72,7 @@ namespace Sprockets.Graph {
         }
 
         /// <summary>
-        /// A node that is marked as blocked cannot not be modified
+        ///     A node that is marked as blocked cannot not be modified
         /// </summary>
         /// <param name="graphNode"></param>
         /// <returns></returns>

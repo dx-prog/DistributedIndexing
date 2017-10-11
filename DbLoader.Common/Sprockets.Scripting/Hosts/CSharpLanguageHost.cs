@@ -56,12 +56,12 @@ namespace Sprockets.Scripting.Hosts {
                     ret.AddRange(result.Diagnostics);
                     if (result.Success) {
                         ms.Position = 0;
-                        assembly.SetSuccess(Assembly.Load(ms.ToArray()), out _);
+                        assembly.SetSuccess(Assembly.Load(ms.ToArray()));
                     }
                 }
             }
             catch (Exception ex) {
-                assembly.SetFailure(ex, out _);
+                assembly.SetFailure(ex);
             }
 
             return ret;

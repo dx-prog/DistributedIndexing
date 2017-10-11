@@ -17,17 +17,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sprockets.Test", "Sprockets
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sprockets.LargeGraph.Serialization", "Sprockets.LargeGraph.Serialization\Sprockets.LargeGraph.Serialization.csproj", "{74E4E2FE-9F87-4256-8745-214DFA4AE0BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprockets.Graph", "Sprockets.Graph\Sprockets.Graph.csproj", "{7AC1FFDC-1C3F-440F-8EBB-83CFF5937DEA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sprockets.Graph", "Sprockets.Graph\Sprockets.Graph.csproj", "{7AC1FFDC-1C3F-440F-8EBB-83CFF5937DEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprockets.Data", "Sprockets.Data\Sprockets.Data.csproj", "{20B75882-B468-48A3-9407-ABC3F715E99E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sprockets.Data", "Sprockets.Data\Sprockets.Data.csproj", "{20B75882-B468-48A3-9407-ABC3F715E99E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprockets.Core.DocumentIndexing", "Sprockets.Core.DocumentIndexing\Sprockets.Core.DocumentIndexing.csproj", "{146D229C-33C8-4B1A-83C5-093E12EE2DA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sprockets.Core.DocumentIndexing", "Sprockets.Core.DocumentIndexing\Sprockets.Core.DocumentIndexing.csproj", "{146D229C-33C8-4B1A-83C5-093E12EE2DA6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentExplorerStudio", "DocumentExplorerStudio\DocumentExplorerStudio.csproj", "{2B917B94-40D5-4499-B8F1-147BE46C08B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprockets.Scripting", "Sprockets.Scripting\Sprockets.Scripting.csproj", "{BC4870A8-52D6-407D-A518-7B8820B60FA1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sprockets.Scripting", "Sprockets.Scripting\Sprockets.Scripting.csproj", "{BC4870A8-52D6-407D-A518-7B8820B60FA1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprockets.DocumentIndexer.Lucene", "Sprockets.DocumentIndexer.Lucene\Sprockets.DocumentIndexer.Lucene.csproj", "{BDE97323-DB21-4AA4-825D-5DF828CE4170}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sprockets.DocumentIndexer.Lucene", "Sprockets.DocumentIndexer.Lucene\Sprockets.DocumentIndexer.Lucene.csproj", "{BDE97323-DB21-4AA4-825D-5DF828CE4170}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprockets.Threading", "Sprockets.Threading\Sprockets.Threading.csproj", "{F1DF3879-7645-4B9D-9193-FFDB5D23E3BD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{50AA7C28-EF3E-4D8D-945C-F42224315078}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,9 +79,16 @@ Global
 		{BDE97323-DB21-4AA4-825D-5DF828CE4170}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDE97323-DB21-4AA4-825D-5DF828CE4170}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDE97323-DB21-4AA4-825D-5DF828CE4170}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1DF3879-7645-4B9D-9193-FFDB5D23E3BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1DF3879-7645-4B9D-9193-FFDB5D23E3BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1DF3879-7645-4B9D-9193-FFDB5D23E3BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1DF3879-7645-4B9D-9193-FFDB5D23E3BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C6BEC09F-8006-4E32-A0B5-D3B956B4F4DD} = {50AA7C28-EF3E-4D8D-945C-F42224315078}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9E5DADAC-F0A9-4E92-A590-FCA8F91C2FD6}
