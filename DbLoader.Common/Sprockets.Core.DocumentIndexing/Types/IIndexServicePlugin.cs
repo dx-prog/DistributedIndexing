@@ -14,16 +14,7 @@
  * limitations under the License.
  * *********************************************************************************/
 
-using System.IO;
-
 namespace Sprockets.Core.DocumentIndexing.Types {
-    public class BinaryIndexingRequest : IndexingRequest {
-        public BinaryIndexingRequest(
-            IndexingRequestDetails details,
-            BinaryReader content) : base(details) {
-            Content = content;
-        }
-
-        public BinaryReader Content { get; }
+    public interface IIndexServicePlugin {
     }
 }

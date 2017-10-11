@@ -15,24 +15,14 @@
  * *********************************************************************************/
 
 using System;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Xml.Linq;
-using Sprockets.Core.DocumentIndexing.Types;
-using Sprockets.LargeGraph.Serialization;
 
-namespace Sprockets.Core.DocumentIndexing.Extractors {
-    public class DefaultXmlTextExtractor : ITextExtractor {
-        public string ExtractText(IndexingRequestDetails details, TextReader reader) {
-            var doc = XDocument.Load(reader);
-
-            var degrapher = new SimpleDegrapher();
-            degrapher.LoadObject(doc);
-            if (degrapher.PumpFor(TimeSpan.FromSeconds(1)))
-                throw new SerializationException();
-
-            return string.Join(Environment.NewLine, degrapher.KnowledgeBase.SelectMany(x => x).OfType<string>());
+namespace Sprockets.Core.DocumentIndexing.Types {
+    [AttributeUsage(AttributeTargets.Class)]
+    public class ServiceUsageAttribute : Attribute {
+        public ServiceUsageAttribute(bool singleton = true) {
+            Singleton = singleton;
         }
+
+        public bool Singleton { get; set; }
     }
 }

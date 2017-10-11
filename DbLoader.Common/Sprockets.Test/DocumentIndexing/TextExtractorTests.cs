@@ -16,6 +16,7 @@
 
 using System.Globalization;
 using System.IO;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sprockets.Core.DocumentIndexing.Extractors;
 using Sprockets.Core.DocumentIndexing.Types;
@@ -25,20 +26,23 @@ namespace Sprockets.Test.DocumentIndexing {
     public class TextExtractorTests {
         [TestMethod]
         public void HtmlExtractorTest() {
-            var extractor = new DefaultHtmlTextExtractor();
+            var extractor = new DefaultHtmlExtractor();
 
             var finalHtml = extractor.ExtractText(
-                IndexingRequestDetails.Create<DefaultHtmlTextExtractor>(CultureInfo.InvariantCulture,
+                IndexingRequestDetails.Create<DefaultHtmlExtractor>(
+                    CultureInfo.InvariantCulture,
+                    Encoding.Unicode, 
                     "text/html",
                     string.Empty),
-                new StringReader(
-                    @"<html>
+               new MemoryStream(Encoding.Unicode.GetBytes(
+                       @"<html>
                         <head>
                         </head>
                        <body>
                         <p>1 <i> 2 </i> <b>3</b> </p>_<span>4</span>
                         </body>
-                    </html>")
+                    </html>"
+                    ))
             );
             Assert.IsTrue(finalHtml.Contains("1"));
             Assert.IsTrue(finalHtml.Contains("2"));

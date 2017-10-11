@@ -14,15 +14,40 @@
  * limitations under the License.
  * *********************************************************************************/
 
+using System;
 using System.IO;
+using Sprockets.Core.OperationalPatterns;
 
 namespace Sprockets.Core.DocumentIndexing.Types {
     public class TextIndexingRequest : IndexingRequest {
-        public TextIndexingRequest(IndexingRequestDetails details,
-            TextReader content) : base(details) {
-            Content = content;
+        private readonly Func<TextIndexingRequest, Stream> _stream;
+
+        public TextIndexingRequest(
+            string remoteSourceIdentity,
+            string friendlyName,
+            IndexingRequestDetails details,
+            Stream content) : base(details) {
+            _stream = ignored => content;
+            RemoteSourceIdentity = remoteSourceIdentity;
+            FriendlyName = friendlyName;
         }
 
-        public TextReader Content { get; }
+        public TextIndexingRequest(
+            string remoteSourceIdentity,
+            string friendlyName,
+            IndexingRequestDetails details,
+            Func<TextIndexingRequest, Stream> content) : base(details) {
+            _stream = content;
+            RemoteSourceIdentity = remoteSourceIdentity;
+            FriendlyName = friendlyName;
+        }
+
+        public string FriendlyName { get; }
+
+        public string RemoteSourceIdentity { get; }
+
+        public Stream Content => _stream(this);
+
+        public TryOperationResult<string> ExtractionResult { get; } = new TryOperationResult<string>();
     }
 }

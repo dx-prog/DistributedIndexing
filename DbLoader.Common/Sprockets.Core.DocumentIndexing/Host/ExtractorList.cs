@@ -13,7 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * *********************************************************************************/
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Sprockets.Core.DocumentIndexing.Types;
+
 namespace Sprockets.Core.DocumentIndexing.Host {
-    internal class TcpServiceAgent {
+    public class ExtractorList : IEnumerable<IExtractor> {
+        private readonly IServiceProvider _provider;
+        private readonly List<Type> _types;
+
+        public ExtractorList(List<Type> types, IServiceProvider provider) {
+            _types = new List<Type>(types);
+            _provider = provider;
+        }
+
+        public IEnumerator<IExtractor> GetEnumerator() {
+            foreach (var type in _types)
+                yield return (IExtractor) _provider.GetService(type);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
+        }
     }
 }

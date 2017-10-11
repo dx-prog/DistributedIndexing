@@ -16,7 +16,7 @@
 
 using System.Globalization;
 
-namespace Sprockets.Core.DocumentIndexing {
+namespace Sprockets.Core.DocumentIndexing.Types {
     public class TextSearch {
         public TextSearch(CultureInfo culture, string queryLanguage, string content) {
             Culture = culture;

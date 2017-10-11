@@ -15,14 +15,21 @@
  * *********************************************************************************/
 
 using System;
+using System.Globalization;
+using System.IO;
 using Sprockets.Core.DocumentIndexing.Types;
 
-namespace Sprockets.Core.DocumentIndexing.Indexers {
-    public interface IDocumentIndexer {
-        string Name { get; }
-        Version Version { get; }
-        string[] QueryLangauges { get; }
-        IndexingRequestDetails[] SupportedFormats { get; }
-        void Search<TDocumentType>(TextSearch search);
+namespace Sprockets.Core.DocumentIndexing.Extractors {
+    public class PassthroughExtractor : IExtractor {
+        public bool CanExtract(CultureInfo culture, string mimeType, string schema) {
+            return
+                string.Equals("text/plain", mimeType, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public string ExtractText(IndexingRequestDetails details, Stream stream) {
+            using (var reader = new StreamReader(stream, details.Encoding, false, 16, true)) {
+                return reader.ReadToEnd();
+            }
+        }
     }
 }

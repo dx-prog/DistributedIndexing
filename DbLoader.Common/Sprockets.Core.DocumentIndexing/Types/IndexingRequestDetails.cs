@@ -15,11 +15,13 @@
  * *********************************************************************************/
 
 using System.Globalization;
+using System.Text;
 
 namespace Sprockets.Core.DocumentIndexing.Types {
     public class IndexingRequestDetails {
         public IndexingRequestDetails(
             CultureInfo culture,
+            Encoding encoding,
             string mimeType,
             string schema,
             string handler) {
@@ -27,6 +29,7 @@ namespace Sprockets.Core.DocumentIndexing.Types {
             Culture = culture;
             MimeType = mimeType;
             Handler = handler;
+            Encoding = encoding;
         }
 
         public string Handler { get; set; }
@@ -35,12 +38,16 @@ namespace Sprockets.Core.DocumentIndexing.Types {
 
         public string Schema { get; }
 
+        public Encoding Encoding { get; }
         public CultureInfo Culture { get; }
 
 
-        public static IndexingRequestDetails Create<T>(CultureInfo culture, string mimeType, string schema)
-            where T : ITextExtractor {
-            return new IndexingRequestDetails(culture, mimeType, schema, typeof(T).AssemblyQualifiedName);
+        public static IndexingRequestDetails Create<T>(CultureInfo culture,
+            Encoding encoding,
+            string mimeType,
+            string schema)
+            where T : IExtractor {
+            return new IndexingRequestDetails(culture, encoding, mimeType, schema, typeof(T).AssemblyQualifiedName);
         }
     }
 }

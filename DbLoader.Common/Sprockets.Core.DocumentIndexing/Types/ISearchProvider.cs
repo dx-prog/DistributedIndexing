@@ -15,10 +15,9 @@
  * *********************************************************************************/
 
 using System.Collections.Generic;
-using Sprockets.Core.DocumentIndexing.Types;
 
-namespace Sprockets.Core.DocumentIndexing.Indexers {
-    public interface IBinaryDocumentIndexer : IDocumentIndexer {
-        void IndexDocuments<TDocumentType>(IEnumerable<BinaryIndexingRequest> source);
+namespace Sprockets.Core.DocumentIndexing.Types {
+    public interface ISearchProvider {
+        IEnumerable<SearchResult> Search(TextSearch search);
     }
 }

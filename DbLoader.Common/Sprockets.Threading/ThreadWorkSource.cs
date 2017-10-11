@@ -67,6 +67,20 @@ namespace Sprockets.Threading {
             return result;
         }
 
+        public TryOperationResult<object> PostWork(
+            CancellationToken token,
+            Func<object> callback) {
+            return PostWork(token,
+                (s, f) => TryOperationResult<object>.Run(callback));
+        }
+
+        public TryOperationResult<object> SendWork(
+            CancellationToken token,
+            Func<object> callback) {
+            return SendWork(token,
+                (s, f) => TryOperationResult<object>.Run(callback));
+        }
+
         private static TryOperationResult<object> ExecuteCallback(CancellationToken token,
             DispatchedWork callback,
             IThreadWorkSource s,

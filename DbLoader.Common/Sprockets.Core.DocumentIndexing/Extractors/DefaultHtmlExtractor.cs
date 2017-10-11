@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections;
+using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
 using AngleSharp;
@@ -25,27 +26,35 @@ using Sprockets.Core.DocumentIndexing.Types;
 using Sprockets.LargeGraph.Serialization;
 
 namespace Sprockets.Core.DocumentIndexing.Extractors {
-    public class DefaultHtmlTextExtractor : ITextExtractor {
+    public class DefaultHtmlExtractor : IExtractor {
         public int MaxNodeDepth { get; set; } = 256;
 
-        public string ExtractText(IndexingRequestDetails details, TextReader reader) {
-            var config = Configuration.Default.WithDefaultLoader();
-
-            var document = new HtmlParser(config).Parse(reader.ReadToEnd());
-
-            // using degrapher because AngleSharp uses recursion
-            var degrapher = new SimpleDegrapher {CustomerEnumerator = HtmlDegrapher};
-            degrapher.LoadObject(document);
-            if (degrapher.PumpFor(TimeSpan.FromSeconds(1)))
-                throw new SerializationException();
-
-            // MaxNodeDepth test, might stack overflow
-            if (degrapher.KnowledgeBase.Count > MaxNodeDepth)
-                throw new SerializationException();
-
+        public bool CanExtract(CultureInfo culture, string mimeType, string schema) {
             return
-                document.Head.TextContent + Environment.NewLine +
-                document.Body.TextContent;
+                string.Equals("text/htm", mimeType, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals("text/html", mimeType, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public string ExtractText(IndexingRequestDetails details, Stream stream) {
+            using (var reader = new StreamReader(stream, details.Encoding, false, 16, true)) {
+                var config = Configuration.Default.WithDefaultLoader();
+
+                var document = new HtmlParser(config).Parse(reader.ReadToEnd());
+
+                // using degrapher because AngleSharp uses recursion
+                var degrapher = new SimpleDegrapher {CustomerEnumerator = HtmlDegrapher};
+                degrapher.LoadObject(document);
+                if (degrapher.PumpFor(TimeSpan.FromSeconds(1)))
+                    throw new SerializationException();
+
+                // MaxNodeDepth test, might stack overflow
+                if (degrapher.KnowledgeBase.Count > MaxNodeDepth)
+                    throw new SerializationException();
+
+                return
+                    document.Head.TextContent + Environment.NewLine +
+                    document.Body.TextContent;
+            }
         }
 
 

@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -25,16 +26,25 @@ using Sprockets.Core.DocumentIndexing.Types;
 using Sprockets.LargeGraph.Serialization;
 
 namespace Sprockets.Core.DocumentIndexing.Extractors {
-    public class DefaultJsonTextExtractor : ITextExtractor {
-        public string ExtractText(IndexingRequestDetails details, TextReader reader) {
-            var obj = JsonConvert.DeserializeObject(reader.ReadToEnd());
+    public class DefaultJsonExtractor : IExtractor {
+        public bool CanExtract(CultureInfo culture, string mimeType, string schema) {
+            return
+                string.Equals("applicaton/json", mimeType, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals("text/json", mimeType, StringComparison.OrdinalIgnoreCase);
+        }
 
-            var degrapher = new SimpleDegrapher {CustomerEnumerator = JsonDegrapher};
-            degrapher.LoadObject(obj);
-            if (degrapher.PumpFor(TimeSpan.FromSeconds(1)))
-                throw new SerializationException();
 
-            return string.Join(Environment.NewLine, degrapher.KnowledgeBase.SelectMany(x => x).OfType<string>());
+        public string ExtractText(IndexingRequestDetails details, Stream stream) {
+            using (var reader = new StreamReader(stream, details.Encoding, false, 16, true)) {
+                var obj = JsonConvert.DeserializeObject(reader.ReadToEnd());
+
+                var degrapher = new SimpleDegrapher {CustomerEnumerator = JsonDegrapher};
+                degrapher.LoadObject(obj);
+                if (degrapher.PumpFor(TimeSpan.FromSeconds(1)))
+                    throw new SerializationException();
+
+                return string.Join(Environment.NewLine, degrapher.KnowledgeBase.SelectMany(x => x).OfType<string>());
+            }
         }
 
         public static IEnumerator JsonDegrapher(IObjectDegrapher caller, object arg) {

@@ -14,11 +14,15 @@
  * limitations under the License.
  * *********************************************************************************/
 
-using System.Collections.Generic;
-using Sprockets.Core.DocumentIndexing.Types;
+using System.Globalization;
+using System.IO;
 
-namespace Sprockets.Core.DocumentIndexing.Indexers {
-    public interface ITextDocumentIndexer : IDocumentIndexer {
-        void IndexDocuments<TDocumentType>(IEnumerable<TextIndexingRequest> source);
+namespace Sprockets.Core.DocumentIndexing.Types {
+    public interface IExtractor : IIndexServicePlugin {
+        bool CanExtract(CultureInfo culture,
+            string mimeType,
+            string schema);
+
+        string ExtractText(IndexingRequestDetails details, Stream stream);
     }
 }
