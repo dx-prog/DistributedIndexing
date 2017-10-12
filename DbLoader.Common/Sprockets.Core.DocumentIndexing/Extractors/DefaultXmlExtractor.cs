@@ -17,7 +17,6 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Xml.Linq;
 using Sprockets.Core.DocumentIndexing.Types;
 using Sprockets.LargeGraph.Serialization;
@@ -30,7 +29,7 @@ namespace Sprockets.Core.DocumentIndexing.Extractors {
                 string.Equals("application/xml", mimeType, StringComparison.OrdinalIgnoreCase);
         }
 
-        public string ExtractText(IndexingRequestDetails details, Stream stream) {
+        public ExtractionResult ExtractText(IndexingRequestDetails details, Stream stream) {
             using (var reader = new StreamReader(stream, details.Encoding, false, 16, true)) {
                 var doc = XDocument.Load(reader);
 
@@ -38,7 +37,7 @@ namespace Sprockets.Core.DocumentIndexing.Extractors {
                 degrapher.LoadObject(doc);
 
 
-                return string.Join(Environment.NewLine, degrapher.KnowledgeBase.SelectMany(x => x).OfType<string>());
+                return new ExtractionResult(details, ExtractionResult.DocumentGraphNode.Create(degrapher));
             }
         }
     }

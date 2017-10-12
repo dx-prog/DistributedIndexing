@@ -28,34 +28,22 @@ namespace Sprockets.Core.DocumentIndexing.Types {
     public class DefaultIntermediateCacheProvider : IIntermediateCache, ISearchProvider {
         private readonly string _dropFolder;
 
+
         public DefaultIntermediateCacheProvider() {
             _dropFolder = Path.Combine(Path.GetTempPath(), "indexcache");
             Directory.CreateDirectory(_dropFolder);
         }
 
-        public string Save(string remoteSourceIdentity, string friendlyName, string originalMimeType, string text) {
+        public string Save(string remoteSourceIdentity,
+            string friendlyName,
+            string originalMimeType,
+            ExtractionResult.ExtractionPointDetail text) {
             var dropFile = "";
             while (string.IsNullOrEmpty(dropFile) || File.Exists(dropFile))
-                dropFile = Path.Combine(_dropFolder, DateTime.Now.Ticks + ".idx");
+                dropFile = Path.Combine(_dropFolder, DateTime.Now.Ticks + "." + text.Index + ".idx");
 
-            var idxIdentity = Path.GetFileNameWithoutExtension(dropFile);
-            File.WriteAllText(dropFile, text);
-            var e = new XElement("IndexInformation");
-            var now = DateTimeOffset.UtcNow;
-            e.SetAttributeValue("LSI", idxIdentity);
-            e.SetAttributeValue("RSI", remoteSourceIdentity);
-            e.SetAttributeValue("FriendlyName", friendlyName);
-            e.SetAttributeValue("OriginalMimeType", originalMimeType);
-
-            e.SetAttributeValue("CreatedDtoUtc", now.ToString());
-            e.SetAttributeValue("CreatedLocal", now.DateTime.ToLocalTime());
-            using (var sha = new SHA256Managed()) {
-                e.SetAttributeValue("Md5Hash",
-                    Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(text))));
-            }
-            File.WriteAllText(GetInfoFileName(dropFile), e.ToString(SaveOptions.None));
-
-            File.SetAttributes(GetInfoFileName(dropFile), FileAttributes.ReadOnly);
+            var idxIdentity =
+                CreateCacheEntry(remoteSourceIdentity, friendlyName, originalMimeType, text.Line, dropFile);
 
             return idxIdentity;
         }
@@ -141,6 +129,31 @@ namespace Sprockets.Core.DocumentIndexing.Types {
                 File.Delete(file);
                 File.Delete(GetInfoFileName(file));
             }
+        }
+
+        private static string CreateCacheEntry(string remoteSourceIdentity,
+            string friendlyName,
+            string originalMimeType,
+            string text,
+            string dropFile) {
+            var idxIdentity = Path.GetFileNameWithoutExtension(dropFile);
+            File.WriteAllText(dropFile, text);
+            var e = new XElement("IndexInformation");
+            var now = DateTimeOffset.UtcNow;
+            e.SetAttributeValue("LSI", idxIdentity);
+            e.SetAttributeValue("RSI", remoteSourceIdentity);
+            e.SetAttributeValue("FriendlyName", friendlyName);
+            e.SetAttributeValue("OriginalMimeType", originalMimeType);
+
+            e.SetAttributeValue("CreatedDtoUtc", now.ToString());
+            e.SetAttributeValue("CreatedLocal", now.DateTime.ToLocalTime());
+            using (var sha = new SHA256Managed()) {
+                e.SetAttributeValue("Md5Hash",
+                    Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(text))));
+            }
+            File.WriteAllText(GetInfoFileName(dropFile), e.ToString(SaveOptions.None));
+            File.SetAttributes(GetInfoFileName(dropFile), FileAttributes.ReadOnly);
+            return idxIdentity;
         }
 
         private static List<Regex> GetQuery(TextSearch search) {

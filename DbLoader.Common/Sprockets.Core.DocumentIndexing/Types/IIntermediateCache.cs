@@ -24,6 +24,10 @@ namespace Sprockets.Core.DocumentIndexing.Types {
     public interface IIntermediateCache {
         void MarkAsIndex(string fileId);
         IEnumerable<TextIndexingRequest> GetReadyFiles();
-        string Save(string remoteSourceIdentity, string friendlyName, string originalMimeType, string text);
+
+        string Save(string remoteSourceIdentity,
+            string friendlyName,
+            string originalMimeType,
+            ExtractionResult.ExtractionPointDetail text);
     }
 }

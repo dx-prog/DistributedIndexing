@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Sprockets.Graph\Sprockets.Graph.csproj" />
     <ProjectReference Include="..\Sprockets.LargeGraph.Serialization\Sprockets.LargeGraph.Serialization.csproj" />
     <ProjectReference Include="..\Sprockets.Scripting\Sprockets.Scripting.csproj" />
     <ProjectReference Include="..\Sprockets.Threading\Sprockets.Threading.csproj" />

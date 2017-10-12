@@ -28,8 +28,12 @@ namespace Sprockets.LargeGraph.Serialization {
     public class TreeOrderDegrapher : IObjectDegrapher {
         private readonly TwoWayLongMap<object> _dataMap = new TwoWayLongMap<object>();
         private long _ids;
+        private int _loopId;
 
         public Func<TreeOrderDegrapher, object, IEnumerator> CustomerEnumerator { get; set; }
+
+        public Dictionary<object, List<TreeOrderIndex>> Mappings { get; } =
+            new Dictionary<object, List<TreeOrderIndex>>();
 
         public List<object[]> KnowledgeBase { get; } = new List<object[]>();
 
@@ -44,7 +48,7 @@ namespace Sprockets.LargeGraph.Serialization {
         public bool LoadObject(object obj) {
             var workLog = new Stack<IEnumerator<object>>();
             var currentObj = obj;
-            var loopId = 0;
+
             var depthId = 0;
             var occuranceId = 0;
             var mapping = new Dictionary<TreeOrderIndex, object>();
@@ -64,7 +68,7 @@ namespace Sprockets.LargeGraph.Serialization {
                         finalRefId = refId;
                 }
 
-                mapping[new TreeOrderIndex(loopId, depthId, occuranceId, finalRefId)] = currentObj;
+                mapping[new TreeOrderIndex(_loopId, depthId, occuranceId, finalRefId)] = currentObj;
                 _skipPoint:
                 if (workLog.Count == 0)
                     break;
@@ -79,11 +83,16 @@ namespace Sprockets.LargeGraph.Serialization {
                     currentObj = skip;
                     depthId--;
                 }
-                loopId++;
+                _loopId++;
             }
 
             KnowledgeBase.AddRange(mapping.Select(kv =>
                 new[] {kv.Key, kv.Value}));
+            foreach (var kv in mapping) {
+                if (!Mappings.TryGetValue(kv.Value, out var list))
+                    list = Mappings[kv.Value] = new List<TreeOrderIndex>();
+                list.Add(kv.Key);
+            }
 
             return false;
         }

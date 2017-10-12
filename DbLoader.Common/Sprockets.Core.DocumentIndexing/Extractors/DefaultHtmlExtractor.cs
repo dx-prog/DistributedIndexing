@@ -18,7 +18,6 @@ using System;
 using System.Collections;
 using System.Globalization;
 using System.IO;
-using System.Runtime.Serialization;
 using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Parser.Html;
@@ -35,25 +34,19 @@ namespace Sprockets.Core.DocumentIndexing.Extractors {
                 string.Equals("text/html", mimeType, StringComparison.OrdinalIgnoreCase);
         }
 
-        public string ExtractText(IndexingRequestDetails details, Stream stream) {
+        public ExtractionResult ExtractText(IndexingRequestDetails details, Stream stream) {
             using (var reader = new StreamReader(stream, details.Encoding, false, 16, true)) {
                 var config = Configuration.Default.WithDefaultLoader();
 
                 var document = new HtmlParser(config).Parse(reader.ReadToEnd());
 
                 // using degrapher because AngleSharp uses recursion
-                var degrapher = new SimpleDegrapher {CustomerEnumerator = HtmlDegrapher};
+                var degrapher = new TreeOrderDegrapher {CustomerEnumerator = HtmlDegrapher};
                 degrapher.LoadObject(document);
-                if (degrapher.PumpFor(TimeSpan.FromSeconds(1)))
-                    throw new SerializationException();
 
-                // MaxNodeDepth test, might stack overflow
-                if (degrapher.KnowledgeBase.Count > MaxNodeDepth)
-                    throw new SerializationException();
 
-                return
-                    document.Head.TextContent + Environment.NewLine +
-                    document.Body.TextContent;
+                var ret = new ExtractionResult(details, ExtractionResult.DocumentGraphNode.Create(degrapher));
+                return ret;
             }
         }
 

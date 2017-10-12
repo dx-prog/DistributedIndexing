@@ -16,6 +16,7 @@
 
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sprockets.Core.DocumentIndexing.Extractors;
@@ -53,12 +54,12 @@ namespace Sprockets.Test.DocumentIndexing {
                     detailsForHtml,
                     GetTestObjectStream()
                 );
-                Assert.IsTrue(finalHtml.Contains("1"));
-                Assert.IsTrue(finalHtml.Contains("2"));
-                Assert.IsTrue(finalHtml.Contains("3"));
-                Assert.IsTrue(finalHtml.Contains("_"));
-                Assert.IsTrue(finalHtml.Contains("4"));
-                Assert.IsTrue(finalHtml.Contains("html"));
+                Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c=>c.Value.Line.Contains("1")));
+                Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("2")));
+                Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("3")));
+                Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("_")));
+                Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("4")));
+                Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("html")));
             }
         }
 
@@ -78,12 +79,11 @@ namespace Sprockets.Test.DocumentIndexing {
                     detailsForHtml,
                     GetTestObjectStream()
                 );
-                Assert.IsTrue(finalHtml.Contains("1"));
-                Assert.IsTrue(finalHtml.Contains("2"));
-                Assert.IsTrue(finalHtml.Contains("3"));
-                Assert.IsTrue(finalHtml.Contains("_"));
-                Assert.IsTrue(finalHtml.Contains("4"));
-                Assert.IsTrue(!finalHtml.Contains("html"));
+                Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("1")));
+                Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("2")));
+                Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("3")));
+                Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("_")));
+                Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("4")));
             }
         }
 
@@ -96,11 +96,11 @@ namespace Sprockets.Test.DocumentIndexing {
                 "text/html",
                 string.Empty);
             var finalHtml = extractor.ExtractText(details, GetTestObjectStream());
-            Assert.IsTrue(finalHtml.Contains("1"));
-            Assert.IsTrue(finalHtml.Contains("2"));
-            Assert.IsTrue(finalHtml.Contains("3"));
-            Assert.IsTrue(finalHtml.Contains("_"));
-            Assert.IsTrue(finalHtml.Contains("4"));
+            Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("1")));
+            Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("2")));
+            Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("3")));
+            Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("_")));
+            Assert.IsTrue(finalHtml.Extractions.Degraph().Any(c => c.Value.Line.Contains("4")));
         }
     }
 }

@@ -17,7 +17,9 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using Sprockets.Core.DocumentIndexing.Types;
+using Sprockets.LargeGraph.Serialization;
 
 namespace Sprockets.Core.DocumentIndexing.Extractors {
     public class PassthroughExtractor : IExtractor {
@@ -26,9 +28,14 @@ namespace Sprockets.Core.DocumentIndexing.Extractors {
                 string.Equals("text/plain", mimeType, StringComparison.OrdinalIgnoreCase);
         }
 
-        public string ExtractText(IndexingRequestDetails details, Stream stream) {
+        public ExtractionResult ExtractText(IndexingRequestDetails details, Stream stream) {
             using (var reader = new StreamReader(stream, details.Encoding, false, 16, true)) {
-                return reader.ReadToEnd();
+                var degrapher = new TreeOrderDegrapher();
+
+                var lines = reader.ReadToEnd().Split('\r', '\n').Where(s => !string.IsNullOrEmpty(s)).ToArray();
+                degrapher.LoadObject(lines);
+
+                return new ExtractionResult(details, ExtractionResult.DocumentGraphNode.Create(degrapher));
             }
         }
     }

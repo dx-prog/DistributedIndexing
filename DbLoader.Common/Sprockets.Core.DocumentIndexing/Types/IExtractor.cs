@@ -23,6 +23,6 @@ namespace Sprockets.Core.DocumentIndexing.Types {
             string mimeType,
             string schema);
 
-        string ExtractText(IndexingRequestDetails details, Stream stream);
+        ExtractionResult ExtractText(IndexingRequestDetails details, Stream stream);
     }
 }

@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Sprockets.Core.DocumentIndexing.Host;
@@ -46,11 +47,19 @@ namespace Sprockets.Core.DocumentIndexing.Indexers {
         public async Task<List<TryOperationResult<string>>> IndexDocuments(CancellationToken token,
             IEnumerable<TextIndexingRequest> requests) {
             return await Task.Run(
-                () => GetResults(requests),
+                () => IndexDocument(requests),
                 token);
         }
 
-        private List<TryOperationResult<string>> GetResults(IEnumerable<TextIndexingRequest> requests) {
+        protected Stream PreExtractionTransform(IndexingRequestDetails details, Stream input) {
+            return input;
+        }
+
+        protected string PostExtractionTransform(IndexingRequestDetails details, string input) {
+            return input;
+        }
+
+        private List<TryOperationResult<string>> IndexDocument(IEnumerable<TextIndexingRequest> requests) {
             var report = new List<TryOperationResult<string>>();
             using (_extractorHost.BeginServiceScope(out var extractor)) {
                 foreach (var request in requests) {
@@ -61,12 +70,21 @@ namespace Sprockets.Core.DocumentIndexing.Indexers {
                             request.Details.Schema))
                             continue;
 
-                        var text = extractor.ExtractText(request.Details, request.Content);
-                        request.ExtractionResult.SetSuccess(_cache.Save(
-                            request.RemoteSourceIdentity,
-                            request.FriendlyName,
-                            request.MimeType,
-                            text));
+                        var dataPoints = extractor.ExtractText(request.Details,
+                            PreExtractionTransform(request.Details, request.Content));
+                        var ids = new List<string>();
+                        // ReSharper disable once LoopCanBeConvertedToQuery
+                        foreach (var point in dataPoints.Extractions.Degraph()) {
+                            var id = _cache.Save(
+                                request.RemoteSourceIdentity,
+                                request.FriendlyName,
+                                request.MimeType,
+                                point.Value
+                            );
+                            ids.Add(id);
+                        }
+
+                        request.ExtractionResult.SetSuccess(string.Join(",", ids));
                     }
                     catch (Exception ex) {
                         request.ExtractionResult.SetFailure(ex);

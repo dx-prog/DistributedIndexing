@@ -18,8 +18,6 @@ using System;
 using System.Collections;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Sprockets.Core.DocumentIndexing.Types;
@@ -34,16 +32,15 @@ namespace Sprockets.Core.DocumentIndexing.Extractors {
         }
 
 
-        public string ExtractText(IndexingRequestDetails details, Stream stream) {
+        public ExtractionResult ExtractText(IndexingRequestDetails details, Stream stream) {
             using (var reader = new StreamReader(stream, details.Encoding, false, 16, true)) {
                 var obj = JsonConvert.DeserializeObject(reader.ReadToEnd());
 
-                var degrapher = new SimpleDegrapher {CustomerEnumerator = JsonDegrapher};
+                var degrapher = new TreeOrderDegrapher {CustomerEnumerator = JsonDegrapher};
                 degrapher.LoadObject(obj);
-                if (degrapher.PumpFor(TimeSpan.FromSeconds(1)))
-                    throw new SerializationException();
 
-                return string.Join(Environment.NewLine, degrapher.KnowledgeBase.SelectMany(x => x).OfType<string>());
+
+                return new ExtractionResult(details, ExtractionResult.DocumentGraphNode.Create(degrapher));
             }
         }
 

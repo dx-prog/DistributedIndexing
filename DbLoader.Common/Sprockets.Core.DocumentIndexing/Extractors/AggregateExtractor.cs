@@ -32,7 +32,7 @@ namespace Sprockets.Core.DocumentIndexing.Extractors {
             return Extractors.Any(e => e.CanExtract(culture, mimeType, schema));
         }
 
-        public string ExtractText(IndexingRequestDetails details, Stream reader) {
+        public ExtractionResult ExtractText(IndexingRequestDetails details, Stream reader) {
             var available = Extractors.Where(e => e.CanExtract(details.Culture, details.MimeType, details.Schema))
                 .ToArray();
 

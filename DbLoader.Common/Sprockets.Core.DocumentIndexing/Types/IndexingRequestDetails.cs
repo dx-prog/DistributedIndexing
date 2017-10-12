@@ -32,13 +32,29 @@ namespace Sprockets.Core.DocumentIndexing.Types {
             Encoding = encoding;
         }
 
+        /// <summary>
+        ///     Get or set the identity of the logic responsible for processing a request
+        /// </summary>
         public string Handler { get; set; }
 
+        /// <summary>
+        ///     Get or set the mime type of the data that was or is to be indexed
+        /// </summary>
         public string MimeType { get; }
 
+        /// <summary>
+        ///     Get or set miscellaneous schema information
+        /// </summary>
         public string Schema { get; }
 
+        /// <summary>
+        ///     Get or set the expected or actual encoding of the data that was or is to be indexed
+        /// </summary>
         public Encoding Encoding { get; }
+
+        /// <summary>
+        ///     Get or set the expected or actual culture of the data that was or is to be indexed
+        /// </summary>
         public CultureInfo Culture { get; }
 
 
