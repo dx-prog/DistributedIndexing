@@ -30,7 +30,7 @@ namespace Sprockets.Core.DocumentIndexing.Extractors {
         public ExtractionResult ExtractText(IndexingRequestDetails details, Stream stream) {
             using (var reader = new StreamReader(stream, details.Encoding, false, 16, true)) {
                 var document = reader.ReadToEnd();
-                var lines = reader.ReadToEnd().Split('\r', '\n').Where(s => !string.IsNullOrEmpty(s)).ToArray();
+                var lines = document.Split('\r', '\n').Where(s => !string.IsNullOrEmpty(s)).ToArray();
 
                 var returnResult = new ExtractionResult(details);
                 returnResult.GenerateSegments(lines,null);

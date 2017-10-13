@@ -33,33 +33,50 @@ namespace Sprockets.Test.DocumentIndexing
     public class IndexingAgentTests
     {
         [TestMethod]
-        public void BasicAgentTest() {
+        public void BasicXmlAgentTest() {
 
+            var content = GetXmlFiles();
+            var keywordTest = "land";
+            ExecuteExtractiontest(content, keywordTest);
+        }
+
+        [TestMethod]
+        public void BasicTdfTest()
+        {
+
+            var content = GetTdfFiles();
+            var keywordTest = "land";
+            ExecuteExtractiontest(content, keywordTest);
+        }
+
+        private static void ExecuteExtractiontest(IEnumerable<TextIndexingRequest> content, string keywordTest) {
             var host = new ExtractorHost();
             host.RegisterScopedExtractor<PassthroughExtractor>();
-            host.RegisterScopedExtractor<DefaultHtmlExtractor>();
-            host.RegisterScopedExtractor(p=>new DefaultXmlExtractor(p) {
-            });
+
+            host.RegisterScopedExtractor<DefaultTdfExtractor>();
+            // Testing instance approaching
+            host.RegisterScopedExtractor(new DefaultHtmlExtractor());
+            // Testing factory approach
+            host.RegisterScopedExtractor(p => new DefaultXmlExtractor(p));
             host.Initialize();
             var cache = new DefaultIntermediateCacheProvider();
             cache.Clear();
             var agent = new IndexerAgent(host, cache, cache);
 
 
-
-            var agentWorker=agent.IndexDocuments(CancellationToken.None, GetTestFiles());
+            var agentWorker = agent.IndexDocuments(CancellationToken.None, content);
             agentWorker.GetAwaiter().GetResult();
 
-            var resultsWorker=( agent.Search(CancellationToken.None,
+            var resultsWorker = (agent.Search(CancellationToken.None,
                 new TextSearch(CultureInfo.InvariantCulture,
                     "REGEX",
-                    "land")));
-         
+                    keywordTest)));
+
             var results = resultsWorker.GetAwaiter().GetResult().ToArray();
-            Assert.IsTrue(results.Length>0);
+            Assert.IsTrue(results.Length > 0);
         }
 
-        private IEnumerable<TextIndexingRequest> GetTestFiles() {
+        private IEnumerable<TextIndexingRequest> GetXmlFiles() {
             return Directory.GetFiles("C:\\testDocSource\\",
                 "*.xml",
                 SearchOption.AllDirectories).Take(10).Select(fullFileName => new TextIndexingRequest(
@@ -69,6 +86,20 @@ namespace Sprockets.Test.DocumentIndexing
                 IndexingRequestDetails.Create<DefaultXmlExtractor>(
                     CultureInfo.InvariantCulture,Encoding.ASCII, "text/xml",string.Empty),
                 (r)=>File.OpenRead(fullFileName)
+            ));
+        }
+
+        private IEnumerable<TextIndexingRequest> GetTdfFiles()
+        {
+            return Directory.GetFiles("C:\\testDocSource\\",
+                "*.txt",
+                SearchOption.AllDirectories).Take(10).Select(fullFileName => new TextIndexingRequest(
+                null,
+                fullFileName,
+                "text file",
+                IndexingRequestDetails.Create<DefaultTdfExtractor>(
+                    CultureInfo.InvariantCulture, Encoding.ASCII, "text/tab-separated-values", string.Empty),
+                (r) => File.OpenRead(fullFileName)
             ));
         }
     }

@@ -18,42 +18,42 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Xml.Linq;
+using System.Linq;
 using Sprockets.Core.DocumentIndexing.Types;
-using Sprockets.LargeGraph.Serialization;
 
 namespace Sprockets.Core.DocumentIndexing.Extractors {
-    public class DefaultXmlExtractor : IExtractor {
-        public DefaultXmlExtractor(IServiceProvider provider) {
+    /// <summary>
+    ///     Tab deliminated file extractor
+    /// </summary>
+    public class DefaultTdfExtractor : IExtractor {
+        public DefaultTdfExtractor(IServiceProvider provider) {
             Provider = provider;
         }
 
         public IServiceProvider Provider { get; }
-        public List<IExtractorExtension<XDocument>> Extensions { get; } = new List<IExtractorExtension<XDocument>>();
 
         public bool CanExtract(CultureInfo culture, string mimeType, string schema) {
             return
-                string.Equals("text/xml", mimeType, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals("application/xml", mimeType, StringComparison.OrdinalIgnoreCase);
+                string.Equals("text/tab-separated-values", mimeType, StringComparison.OrdinalIgnoreCase);
         }
 
         public ExtractionResult ExtractText(IndexingRequestDetails details, Stream stream) {
             using (var reader = new StreamReader(stream, details.Encoding, false, 16, true)) {
-                var doc = XDocument.Load(reader);
+                var rows = new List<string>();
+                var row = string.Empty;
+                while ((row = reader.ReadLine()) != null) {
+                    var entry = string.Join("\r\n", row.Split('\t').AsEnumerable().Reverse());
+                    rows.Add(entry);
+                }
+
 
                 var returnResult = new ExtractionResult(details);
 
-                if (Extensions.Count == 0)
-                    returnResult.GenerateSegments(doc, SimpleDegrapher.XElementDegrapher);
-                else {
-                    foreach (var ext in Extensions)
-                        if (ext.TryProcess(returnResult, doc))
-                            break;
-                }
-
+                returnResult.GenerateSegments(rows, null);
                 returnResult.AnnotateSegments();
                 return returnResult;
             }
         }
+
     }
 }
