@@ -29,9 +29,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sprockets.Scripting", "Spro
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sprockets.DocumentIndexer.Lucene", "Sprockets.DocumentIndexer.Lucene\Sprockets.DocumentIndexer.Lucene.csproj", "{BDE97323-DB21-4AA4-825D-5DF828CE4170}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprockets.Threading", "Sprockets.Threading\Sprockets.Threading.csproj", "{F1DF3879-7645-4B9D-9193-FFDB5D23E3BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sprockets.Threading", "Sprockets.Threading\Sprockets.Threading.csproj", "{F1DF3879-7645-4B9D-9193-FFDB5D23E3BD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{50AA7C28-EF3E-4D8D-945C-F42224315078}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extractors", "Extractors", "{9230BE98-33B2-481A-8FF0-8912EC1A1CF8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

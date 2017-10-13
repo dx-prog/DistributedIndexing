@@ -15,6 +15,7 @@
  * *********************************************************************************/
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Xml.Linq;
@@ -23,6 +24,13 @@ using Sprockets.LargeGraph.Serialization;
 
 namespace Sprockets.Core.DocumentIndexing.Extractors {
     public class DefaultXmlExtractor : IExtractor {
+        public DefaultXmlExtractor(IServiceProvider provider) {
+            Provider = provider;
+        }
+
+        public IServiceProvider Provider { get; }
+        public List<IExtractorExtension<XDocument>> Extensions { get; } = new List<IExtractorExtension<XDocument>>();
+
         public bool CanExtract(CultureInfo culture, string mimeType, string schema) {
             return
                 string.Equals("text/xml", mimeType, StringComparison.OrdinalIgnoreCase) ||
@@ -33,11 +41,17 @@ namespace Sprockets.Core.DocumentIndexing.Extractors {
             using (var reader = new StreamReader(stream, details.Encoding, false, 16, true)) {
                 var doc = XDocument.Load(reader);
 
-                var degrapher = new TreeOrderDegrapher {CustomerEnumerator = SimpleDegrapher.XElementDegrapher};
-                degrapher.LoadObject(doc);
+                var returnResult = new ExtractionResult(details);
+                returnResult.DocumentStructure.CustomerEnumerator = SimpleDegrapher.XElementDegrapher;
 
+                if (Extensions.Count == 0)
+                    returnResult.DocumentStructure.LoadObject(doc);
+                foreach (var ext in Extensions)
+                    if (ext.TryProcess(returnResult, doc))
+                        break;
 
-                return new ExtractionResult(details, ExtractionResult.DocumentGraphNode.Create(degrapher));
+                returnResult.AnnotateSegments();
+                return returnResult;
             }
         }
     }

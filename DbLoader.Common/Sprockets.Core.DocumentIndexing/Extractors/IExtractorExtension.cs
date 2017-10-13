@@ -14,20 +14,12 @@
  * limitations under the License.
  * *********************************************************************************/
 
-using System.Collections.Generic;
+using Sprockets.Core.DocumentIndexing.Types;
 
-namespace Sprockets.Core.DocumentIndexing.Types {
-    /// <summary>
-    ///     Intermediate cache is only responsible for storing content until it pulled into the
-    ///     final database
-    /// </summary>
-    public interface IIntermediateCache {
-        void MarkAsIndex(string fileId);
-        IEnumerable<TextIndexingRequest> GetReadyFiles();
-
-        string Save(string remoteSourceIdentity,
-            string friendlyName,
-            string originalMimeType,
-            ExtractionPointDetail text);
+namespace Sprockets.Core.DocumentIndexing.Extractors {
+    public interface IExtractorExtension<in TDocumentType> {
+        bool TryProcess(
+            ExtractionResult result,
+            TDocumentType document);
     }
 }

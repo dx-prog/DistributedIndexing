@@ -38,7 +38,8 @@ namespace Sprockets.Test.DocumentIndexing
             var host = new ExtractorHost();
             host.RegisterScopedExtractor<PassthroughExtractor>();
             host.RegisterScopedExtractor<DefaultHtmlExtractor>();
-            host.RegisterScopedExtractor<DefaultXmlExtractor>();
+            host.RegisterScopedExtractor(p=>new DefaultXmlExtractor(p) {
+            });
             host.Initialize();
             var cache = new DefaultIntermediateCacheProvider();
             cache.Clear();
@@ -52,7 +53,7 @@ namespace Sprockets.Test.DocumentIndexing
             var resultsWorker=( agent.Search(CancellationToken.None,
                 new TextSearch(CultureInfo.InvariantCulture,
                     "REGEX",
-                    "law")));
+                    "land")));
          
             var results = resultsWorker.GetAwaiter().GetResult().ToArray();
             Assert.IsTrue(results.Length>0);
@@ -61,13 +62,13 @@ namespace Sprockets.Test.DocumentIndexing
         private IEnumerable<TextIndexingRequest> GetTestFiles() {
             return Directory.GetFiles("C:\\testDocSource\\",
                 "*.xml",
-                SearchOption.AllDirectories).Take(10).Select(text => new TextIndexingRequest(
+                SearchOption.AllDirectories).Take(10).Select(fullFileName => new TextIndexingRequest(
                 null,
-                text,
+                fullFileName,
                 "text file",
                 IndexingRequestDetails.Create<DefaultXmlExtractor>(
                     CultureInfo.InvariantCulture,Encoding.ASCII, "text/xml",string.Empty),
-                (r)=>File.OpenRead(text)
+                (r)=>File.OpenRead(fullFileName)
             ));
         }
     }

@@ -51,12 +51,12 @@ namespace Sprockets.Core.DocumentIndexing.Indexers {
                 token);
         }
 
-        protected Stream PreExtractionTransform(IndexingRequestDetails details, Stream input) {
-            return input;
+        protected Stream PreExtractionTransform(TextIndexingRequest request) {
+            return request.Content;
         }
 
-        protected string PostExtractionTransform(IndexingRequestDetails details, string input) {
-            return input;
+        protected ExtractionResult PostExtractionTransform(ExtractionResult dataPoints) {
+            return dataPoints;
         }
 
         private List<TryOperationResult<string>> IndexDocument(IEnumerable<TextIndexingRequest> requests) {
@@ -70,16 +70,17 @@ namespace Sprockets.Core.DocumentIndexing.Indexers {
                             request.Details.Schema))
                             continue;
 
-                        var dataPoints = extractor.ExtractText(request.Details,
-                            PreExtractionTransform(request.Details, request.Content));
+                        var preExtractionData = PreExtractionTransform(request);
+                        var dataPoints = extractor.ExtractText(request.Details, preExtractionData);
+                        dataPoints = PostExtractionTransform(dataPoints);
                         var ids = new List<string>();
                         // ReSharper disable once LoopCanBeConvertedToQuery
-                        foreach (var point in dataPoints.Extractions.Degraph()) {
+                        foreach (var point in dataPoints.ExtractionPointDetails) {
                             var id = _cache.Save(
                                 request.RemoteSourceIdentity,
                                 request.FriendlyName,
                                 request.MimeType,
-                                point.Value
+                                point
                             );
                             ids.Add(id);
                         }

@@ -44,6 +44,11 @@ namespace Sprockets.Core.DocumentIndexing.Host {
             _knownExtractorTypes.Add(typeof(T));
         }
 
+        public void RegisterScopedExtractor<T>(Func<IServiceProvider, T> factory) where T : IExtractor {
+            Services.TryAddScoped(typeof(T), p => factory(p));
+            _knownExtractorTypes.Add(typeof(T));
+        }
+
         public void RegisterScopedExtractor<T>() where T : IExtractor {
             Services.TryAddScoped(typeof(T));
             _knownExtractorTypes.Add(typeof(T));

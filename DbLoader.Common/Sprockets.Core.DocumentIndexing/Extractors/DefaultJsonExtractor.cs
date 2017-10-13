@@ -36,11 +36,12 @@ namespace Sprockets.Core.DocumentIndexing.Extractors {
             using (var reader = new StreamReader(stream, details.Encoding, false, 16, true)) {
                 var obj = JsonConvert.DeserializeObject(reader.ReadToEnd());
 
-                var degrapher = new TreeOrderDegrapher {CustomerEnumerator = JsonDegrapher};
-                degrapher.LoadObject(obj);
 
+                var returnResult = new ExtractionResult(details);
+                returnResult.GenerateSegments(obj, JsonDegrapher);
+                returnResult.AnnotateSegments();
 
-                return new ExtractionResult(details, ExtractionResult.DocumentGraphNode.Create(degrapher));
+                return returnResult;
             }
         }
 

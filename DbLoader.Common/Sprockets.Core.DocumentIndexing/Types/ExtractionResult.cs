@@ -14,84 +14,45 @@
  * limitations under the License.
  * *********************************************************************************/
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Sprockets.Graph;
+using AngleSharp.Dom.Html;
 using Sprockets.LargeGraph.Serialization;
 
 namespace Sprockets.Core.DocumentIndexing.Types {
-    /// <summary>
-    ///     This class exists to make code changes easier at a later point; my hunch is that
-    ///     simply returning one large string from an extraction would disadvantage the design
-    ///     later, but I also suspect using a standard data type like an array or dictionary
-    ///     would not contain enough information. The graph node is highly flexible.
-    /// </summary>
     public class ExtractionResult {
-        private IndexingRequestDetails _originalDetails;
-
-        public ExtractionResult(IndexingRequestDetails originalDetails, DocumentGraphNode extractions) {
-            _originalDetails = originalDetails;
-            Extractions = extractions;
+        public ExtractionResult(
+            IndexingRequestDetails originalDetails) {
+            Details = originalDetails;
         }
 
-        public DocumentGraphNode Extractions { get; set; }
+        public IndexingRequestDetails Details { get; }
+        public List<ExtractionPointDetail> ExtractionPointDetails { get; } = new List<ExtractionPointDetail>();
+        public TreeOrderDegrapher DocumentStructure { get; } = new TreeOrderDegrapher();
 
-        public class ExtractionPointDetail {
-            public string Line { get; set; }
-            public int Index { get; set; }
-            public string MappingPoint { get; set; }
+
+        public void AnnotateSegments() {
+            for (var i = 0; i < ExtractionPointDetails.Count; i++) {
+                var line = ExtractionPointDetails[i].Segment;
+                ExtractionPointDetails[i].Sid = i;
+                if (DocumentStructure.Mappings.TryGetValue(line, out var mappings))
+                    ExtractionPointDetails[i].MappingPoint = mappings;
+            }
         }
 
+        public void GenerateSegments(object document, Func<IObjectDegrapher, object, IEnumerator> htmlDegrapher, DocumentCitation citation=null) {
+            DocumentStructure.CustomerEnumerator = htmlDegrapher;
+            DocumentStructure.LoadObject(document);
+            ExtractionPointDetails.Clear();
 
-        public class DocumentGraphNode : GraphNode<ExtractionPointDetail> {
-            public IEnumerable<DocumentGraphNode> Degraph() {
-                var degrapher = new TreeOrderDegrapher {
-                    CustomerEnumerator = GraphNodeDegrapher
-                };
-                degrapher.LoadObject(this);
-
-                return degrapher.KnowledgeBase.SelectMany(n => n).OfType<DocumentGraphNode>();
-            }
-
-            public static IEnumerator GraphNodeDegrapher(IObjectDegrapher caller, object arg) {
-                if (arg is DocumentGraphNode node) {
-                    yield return node.Id;
-                    yield return node.Value;
-                    yield return node.Value.Line;
-                    yield return node.Value.Index;
-                    yield return node.Value.MappingPoint;
-
-                    foreach (var peer in node.Peers)
-                        yield return peer;
-
-                    yield break;
-                }
-
-                yield return arg;
-            }
-
-            public static DocumentGraphNode Create(TreeOrderDegrapher degrapher) {
-                DocumentGraphNode root = null;
-                var index = 0;
-                foreach (var line in degrapher.KnowledgeBase.SelectMany(n => n).OfType<string>()) {
-                    var node = new DocumentGraphNode {
-                        Value = new ExtractionPointDetail {
-                            Line = line,
-                            Index = index++,
-                            MappingPoint = string.Join(";", degrapher.Mappings[line])
-                        }
-                    };
-                    if (null == root) {
-                        root = node;
-                    }
-                    else {
-                        root.JoinTo(node);
-                        root = node;
-                    }
-                }
-
-                return root;
+            foreach (var objectString in DocumentStructure.KnowledgeBase.SelectMany(obj => obj).OfType<string>()) {
+                ExtractionPointDetails.Add(
+                    new ExtractionPointDetail {
+                         Segment = objectString,
+                         Citation= citation
+                    });
             }
         }
     }

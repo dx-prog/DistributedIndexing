@@ -37,13 +37,13 @@ namespace Sprockets.Core.DocumentIndexing.Types {
         public string Save(string remoteSourceIdentity,
             string friendlyName,
             string originalMimeType,
-            ExtractionResult.ExtractionPointDetail text) {
+            ExtractionPointDetail text) {
             var dropFile = "";
             while (string.IsNullOrEmpty(dropFile) || File.Exists(dropFile))
-                dropFile = Path.Combine(_dropFolder, DateTime.Now.Ticks + "." + text.Index + ".idx");
+                dropFile = Path.Combine(_dropFolder, DateTime.Now.Ticks + "." + text.Sid + ".idx");
 
             var idxIdentity =
-                CreateCacheEntry(remoteSourceIdentity, friendlyName, originalMimeType, text.Line, dropFile);
+                CreateCacheEntry(remoteSourceIdentity, friendlyName, originalMimeType, text.Segment, dropFile);
 
             return idxIdentity;
         }

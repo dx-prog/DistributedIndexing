@@ -41,12 +41,12 @@ namespace Sprockets.Core.DocumentIndexing.Extractors {
                 var document = new HtmlParser(config).Parse(reader.ReadToEnd());
 
                 // using degrapher because AngleSharp uses recursion
-                var degrapher = new TreeOrderDegrapher {CustomerEnumerator = HtmlDegrapher};
-                degrapher.LoadObject(document);
+                var returnResult = new ExtractionResult(details);
 
+                returnResult.GenerateSegments(document, HtmlDegrapher);
+                returnResult.AnnotateSegments();
 
-                var ret = new ExtractionResult(details, ExtractionResult.DocumentGraphNode.Create(degrapher));
-                return ret;
+                return returnResult;
             }
         }
 
