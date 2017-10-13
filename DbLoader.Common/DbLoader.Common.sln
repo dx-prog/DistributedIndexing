@@ -35,6 +35,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{50AA7C28-E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extractors", "Extractors", "{9230BE98-33B2-481A-8FF0-8912EC1A1CF8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sprockets.Expressions", "Sprockets.Expressions\Sprockets.Expressions.csproj", "{240446B3-97A9-4023-AD27-CAB6488469CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,10 @@ Global
 		{F1DF3879-7645-4B9D-9193-FFDB5D23E3BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1DF3879-7645-4B9D-9193-FFDB5D23E3BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1DF3879-7645-4B9D-9193-FFDB5D23E3BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{240446B3-97A9-4023-AD27-CAB6488469CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{240446B3-97A9-4023-AD27-CAB6488469CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{240446B3-97A9-4023-AD27-CAB6488469CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{240446B3-97A9-4023-AD27-CAB6488469CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

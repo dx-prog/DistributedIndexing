@@ -25,13 +25,13 @@ using Sprockets.Core.OperationalPatterns;
 
 namespace Sprockets.Core.DocumentIndexing.Indexers {
     public class IndexerAgent {
-        private readonly IIntermediateCache _cache;
+        private readonly ITextCache _cache;
         private readonly ExtractorHost _extractorHost;
         private readonly ISearchProvider _searchProvider;
 
         public IndexerAgent(
             ExtractorHost extractorHost,
-            IIntermediateCache cache,
+            ITextCache cache,
             ISearchProvider searchProvider) {
             _extractorHost = extractorHost;
             _cache = cache;
@@ -74,15 +74,17 @@ namespace Sprockets.Core.DocumentIndexing.Indexers {
                         var dataPoints = extractor.ExtractText(request.Details, preExtractionData);
                         dataPoints = PostExtractionTransform(dataPoints);
                         var ids = new List<string>();
-                        // ReSharper disable once LoopCanBeConvertedToQuery
-                        foreach (var point in dataPoints.ExtractionPointDetails) {
-                            var id = _cache.Save(
-                                request.RemoteSourceIdentity,
-                                request.FriendlyName,
-                                request.MimeType,
-                                point
-                            );
-                            ids.Add(id);
+                        using (_cache.OpenCache()) {
+                            // ReSharper disable once LoopCanBeConvertedToQuery
+                            foreach (var point in dataPoints.ExtractionPointDetails) {
+                                var id = _cache.Save(
+                                    request.RemoteSourceIdentity,
+                                    request.FriendlyName,
+                                    request.MimeType,
+                                    point
+                                );
+                                ids.Add(id);
+                            }
                         }
 
                         request.ExtractionResult.SetSuccess(string.Join(",", ids));

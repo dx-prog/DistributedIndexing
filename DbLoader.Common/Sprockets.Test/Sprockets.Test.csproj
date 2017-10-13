@@ -16,6 +16,8 @@
     <ProjectReference Include="..\DocumentIndexer\DocumentIndexer.csproj" />
     <ProjectReference Include="..\Sprockets.Core.DocumentIndexing\Sprockets.Core.DocumentIndexing.csproj" />
     <ProjectReference Include="..\Sprockets.Core\Sprockets.Core.csproj" />
+    <ProjectReference Include="..\Sprockets.DocumentIndexer.Lucene\Sprockets.DocumentIndexer.Lucene.csproj" />
+    <ProjectReference Include="..\Sprockets.Expressions\Sprockets.Expressions.csproj" />
     <ProjectReference Include="..\Sprockets.Graph\Sprockets.Graph.csproj" />
     <ProjectReference Include="..\Sprockets.LargeGraph.Serialization\Sprockets.LargeGraph.Serialization.csproj" />
     <ProjectReference Include="..\Sprockets.Scripting\Sprockets.Scripting.csproj" />

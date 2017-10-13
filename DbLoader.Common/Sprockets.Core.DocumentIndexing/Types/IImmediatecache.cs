@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * *********************************************************************************/
-
-using System.Collections.Generic;
-
 namespace Sprockets.Core.DocumentIndexing.Types {
     /// <summary>
-    ///     Intermediate cache is only responsible for storing content until it pulled into the
-    ///     final database
+    ///     An immediate cache does not support intermediate operations. There is no workfly
+    ///     required to get data into the cache.
     /// </summary>
-    public interface IIntermediateCache : ITextCache
+    public interface IImmediatecache: ITextCache
     {
-        void MarkAsIndex(string fileId);
-        IEnumerable<TextIndexingRequest> GetReadyFiles();
+       
     }
 }

@@ -22,9 +22,10 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Sprockets.Core.DocumentIndexing.Types;
 using Sprockets.Core.IO;
 
-namespace Sprockets.Core.DocumentIndexing.Types {
+namespace Sprockets.Core.DocumentIndexing.CacheProviders {
     public class DefaultIntermediateCacheProvider : IIntermediateCache, ISearchProvider {
         private readonly string _dropFolder;
 
@@ -32,6 +33,10 @@ namespace Sprockets.Core.DocumentIndexing.Types {
         public DefaultIntermediateCacheProvider() {
             _dropFolder = Path.Combine(Path.GetTempPath(), "indexcache");
             Directory.CreateDirectory(_dropFolder);
+        }
+
+        public IDisposable OpenCache() {
+            return new Disposables.DisposableStopwatch();
         }
 
         public string Save(string remoteSourceIdentity,

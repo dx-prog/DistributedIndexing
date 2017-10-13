@@ -7,11 +7,17 @@
   <ItemGroup>
     <PackageReference Include="Lucene.Net" Version="3.0.3" />
     <PackageReference Include="Lucene.Net.Linq" Version="3.6.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DocumentIndexer\DocumentIndexer.csproj" />
+    <ProjectReference Include="..\Sprockets.Core.DocumentIndexing\Sprockets.Core.DocumentIndexing.csproj" />
     <ProjectReference Include="..\Sprockets.Core\Sprockets.Core.csproj" />
+    <ProjectReference Include="..\Sprockets.Data\Sprockets.Data.csproj" />
+    <ProjectReference Include="..\Sprockets.Expressions\Sprockets.Expressions.csproj" />
+    <ProjectReference Include="..\Sprockets.Graph\Sprockets.Graph.csproj" />
+    <ProjectReference Include="..\Sprockets.LargeGraph.Serialization\Sprockets.LargeGraph.Serialization.csproj" />
   </ItemGroup>
 
 </Project>
