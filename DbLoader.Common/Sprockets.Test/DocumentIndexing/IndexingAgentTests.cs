@@ -43,7 +43,7 @@ namespace Sprockets.Test.DocumentIndexing {
         public void BasicTdfTest() {
             var content = GetTdfFiles();
             var keywordTest = "earth";
-            ExecuteExtractiontest(content, keywordTest,new LuceneCache(LuceneCache.MemoryModel.Ram));
+            ExecuteExtractiontest(content, keywordTest, new LuceneCache(LuceneCache.MemoryModel.Disk));
         }
 
         private static void ExecuteExtractiontest(IEnumerable<TextIndexingRequest> content,

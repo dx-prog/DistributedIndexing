@@ -19,10 +19,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sprockets.Core.DocumentIndexing.Types;
 using Sprockets.DocumentIndexer.Lucene;
 using Sprockets.Expressions;
+using Sprockets.Lexer;
 
 namespace Sprockets.Test.Expressions {
     [TestClass]
     public class ExpressionsTest {
+
         [TestMethod]
         public void SearchTextDocumentTest() {
             var predicate = new PredicateGroup<LuceneCache.TextDocument>();

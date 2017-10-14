@@ -18,6 +18,7 @@
     <ProjectReference Include="..\Sprockets.Expressions\Sprockets.Expressions.csproj" />
     <ProjectReference Include="..\Sprockets.Graph\Sprockets.Graph.csproj" />
     <ProjectReference Include="..\Sprockets.LargeGraph.Serialization\Sprockets.LargeGraph.Serialization.csproj" />
+    <ProjectReference Include="..\Sprockets.Lexer\Sprockets.Lexer.csproj" />
   </ItemGroup>
 
 </Project>
