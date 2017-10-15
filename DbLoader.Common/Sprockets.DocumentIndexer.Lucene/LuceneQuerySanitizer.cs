@@ -17,41 +17,127 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Sprockets.DocumentIndexer.Lucene.Types;
 using Sprockets.Lexer;
 
-namespace Sprockets.DocumentIndexer.Lucene
-{
-    public class LuceneQuerySanitizer
-    {
-        private static readonly char [] Repeatables=new char[] {
+namespace Sprockets.DocumentIndexer.Lucene {
+    public class LuceneQuerySanitizer {
+        private static readonly char[] Repeatables = {
             '\"',
             '(',
             ')'
         };
+
         public static string Sanitize(LexerCursor inputCursor) {
             var elements = new List<LexCapture>();
             RemoveDisallowedRepeats(inputCursor, elements);
 
-            return string.Concat(elements.Select(e=>e.Value)).Trim();
+
+            var scopebuilder = new ScopeBuilder();
+            StructureSyntax(elements, scopebuilder);
+            scopebuilder.LastestScopeSanitizer.Sanitize();
+            var ret= scopebuilder.LastestScopeSanitizer.ToString().Trim();
+            return string.IsNullOrWhiteSpace(ret) ? "*" : ret;
+        }
+
+        private static void StructureSyntax(List<LexCapture> elements, ScopeBuilder scopebuilder) {
+            foreach (var element in elements)
+                switch (element.Type.Name) {
+                    case LuceneQueryParser.KeywordParenthesesOpen:
+                        scopebuilder.BeginSubGroup();
+                        break;
+                    case LuceneQueryParser.KeywordParenthesesClose:
+                        scopebuilder.ExitSubGroup();
+                        break;
+                    case LuceneQueryParser.KeywordQuoteContent:
+                        switch (scopebuilder.LastestGroup.LastOrDefault()) {
+                            case StringSanitizerToken stringToken:
+                                var stringGroup = new StringGroupSanitizerToken();
+                                scopebuilder.LastestGroup.Last.Value = stringGroup;
+                                stringGroup.Tokens.Add(stringToken);
+                                stringGroup.Tokens.Add(new StringSanitizerToken(element.Value));
+                                break;
+                            case StringGroupSanitizerToken group:
+                                group.Tokens.Add(new StringSanitizerToken(element.Value));
+                                break;
+                            default:
+                                scopebuilder.LastestGroup.AddLast(new StringSanitizerToken(element.Value));
+                                break;
+                        }
+
+                        break;
+                    case LuceneQueryParser.KeywordOperator:
+                        switch (element.Value) {
+                            case "AND":
+                            case "OR":
+                                scopebuilder.LastestGroup.AddLast(new BinaryOperatorSanitizerToken(element.Value));
+                                break;
+                            case "NOT":
+                                scopebuilder.LastestGroup.AddLast(new UnaryOperatorSanitizerToken("!"));
+                                break;
+                            case "+":
+                            case "-":
+                            case "!":
+                                scopebuilder.LastestGroup.AddLast(new UnaryOperatorSanitizerToken(element.Value));
+                                break;
+                            default:
+                                throw new InvalidOperationException();
+                        }
+
+                        break;
+                    case LuceneQueryParser.KeywordOperand:
+                        scopebuilder.LastestGroup.AddLast(new OperandSanitizerToken(element.Value));
+                        break;
+                    case LuceneQueryParser.KeywordWhiteSpace:
+                        scopebuilder.LastestGroup.AddLast(new DelimiterSanitizerToken());
+                        break;
+                }
         }
 
         private static void RemoveDisallowedRepeats(LexerCursor inputCursor, List<LexCapture> elements) {
+            LexCapture lastOperator = null;
             foreach (var element in inputCursor.GetVitalCapture()) {
+                if (element.Type.Name == null)
+                    continue;
+
                 element.Value = (element.Value ?? "").Trim();
                 if (string.IsNullOrWhiteSpace(element.Value))
                     element.Value = " ";
 
-                // Skip over repeat search terms OR operators, UNLESS
-                // those terms or operators are in the whitelist
-                if (elements.LastOrDefault()?.Value == element.Value) {
-                    if (element.Value.Length != 1 || !Repeatables.Contains(element.Value[0])) {
-                        continue;
-                    }
-                }
+                if (IsDisallowedRepeats(elements, lastOperator, element))
+                    continue;
+
                 elements.Add(element);
+                switch (element.Type.Name) {
+                    case LuceneQueryParser.KeywordParenthesesClose:
+                    case LuceneQueryParser.KeywordParenthesesOpen:
+                    case LuceneQueryParser.KeywordQuoteContent:
+                    case LuceneQueryParser.KeywordOperand:
+                        lastOperator = null;
+                        break;
+                    case LuceneQueryParser.KeywordOperator:
+                        lastOperator = element;
+                        break;
+                    // ReSharper disable once RedundantEmptySwitchSection
+                    default:
+                        break;
+                }
             }
+        }
+
+        private static bool IsDisallowedRepeats(List<LexCapture> elements,
+            LexCapture lastOperator,
+            LexCapture element) {
+            if (lastOperator?.Value == element.Value && lastOperator?.Type?.Name == element.Type.Name)
+                return true;
+
+            if (elements.LastOrDefault()?.Value != element.Value)
+                return false;
+
+            if (element.Value?.Length != 1)
+                return true;
+
+            return !Repeatables.Contains(element.Value[0]);
         }
     }
 }

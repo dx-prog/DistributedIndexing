@@ -76,32 +76,56 @@ namespace Sprockets.DocumentIndexer.Lucene {
         }
 
         public IEnumerable<SearchResult> Search(TextSearch search) {
-            var args = search.Content.Split(' ').Distinct().ToArray();
+     
             using (OpenCache()) {
                 var parser = _provider.CreateQueryParser<TextDocument>("SearchText");
                 parser.AllowLeadingWildcard = true;
                 var query = new StringBuilder();
-                if (search.QueryLanguage != "FREETEXT")
-                    foreach (var arg in args) {
-                        if (query.Length > 0)
-                            query.Append(" AND ");
-                        query.AppendFormat("{0}", QueryParser.Escape(arg));
+                if (search.QueryLanguage == "ADVANCED") {
+                    var segments = LuceneQueryParser.ParseQuery(search.Content);
+                    var actual = LuceneQuerySanitizer.Sanitize(segments);
+                    foreach (var match in _provider.AsQueryable<TextDocument>().Where(parser.Parse(actual)))
+                    {
+                        var tmp = new SearchResult
+                        {
+                            FriendlyName = match.FriendlyName,
+                            HostName = Environment.MachineName,
+                            LocalSourceIdentity = match.Id,
+                            OriginalRemoteSourceIdentity = match.RemoteIdentity
+                        };
+
+
+                        tmp.AddStatistic(actual, "1");
+                        tmp.AddStatistic(match.Id, match.SearchText);
+                        yield return tmp;
                     }
-
-
-                foreach (var match in _provider.AsQueryable<TextDocument>().Where(parser.Parse(query.ToString()))) {
-                    var tmp = new SearchResult {
-                        FriendlyName = match.FriendlyName,
-                        HostName = Environment.MachineName,
-                        LocalSourceIdentity = match.Id,
-                        OriginalRemoteSourceIdentity = match.RemoteIdentity
-                    };
-                    foreach (var arg in args)
-                        tmp.AddStatistic(arg, args.Count(verb => match.SearchText.Contains(verb)).ToString());
-
-                    tmp.AddStatistic(match.Id, match.SearchText);
-                    yield return tmp;
                 }
+                else {
+                    foreach (var searchResult in SimpleSearch(search, query, parser))
+                        yield return searchResult;
+                }
+            }
+        }
+
+        private IEnumerable<SearchResult> SimpleSearch(TextSearch search, StringBuilder query, FieldMappingQueryParser<TextDocument> parser) {
+            var args = search.Content.Split(' ').Distinct().ToArray();
+            foreach (var arg in args) {
+                if (query.Length > 0)
+                    query.Append(" AND ");
+                query.AppendFormat("{0}", QueryParser.Escape(arg));
+            }
+            foreach (var match in _provider.AsQueryable<TextDocument>().Where(parser.Parse(query.ToString()))) {
+                var tmp = new SearchResult {
+                    FriendlyName = match.FriendlyName,
+                    HostName = Environment.MachineName,
+                    LocalSourceIdentity = match.Id,
+                    OriginalRemoteSourceIdentity = match.RemoteIdentity
+                };
+                foreach (var arg in args)
+                    tmp.AddStatistic(arg, args.Count(verb => match.SearchText.Contains(verb)).ToString());
+
+                tmp.AddStatistic(match.Id, match.SearchText);
+                yield return tmp;
             }
         }
 

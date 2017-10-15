@@ -14,14 +14,13 @@
  * limitations under the License.
  * *********************************************************************************/
 
-using System;
 using Sprockets.Lexer;
 
 namespace Sprockets.DocumentIndexer.Lucene {
     public class LuceneQueryParser {
-        public const string KeywordOperator= "OPERATOR";
+        public const string KeywordOperator = "OPERATOR";
         public const string KeywordParenthesesOpen = "PAREN:OPEN";
-        public const string KeywordParenthesesClose = "PAREN:OPEN";
+        public const string KeywordParenthesesClose = "PAREN:CLOSE";
         public const string KeywordQuoteContent = "QUOTE";
         public const string KeywordOperand = "OPERAND";
         public const string KeywordWhiteSpace = "WHITESPACE";
@@ -29,7 +28,7 @@ namespace Sprockets.DocumentIndexer.Lucene {
         public static LexerCursor ParseQuery(string input) {
             var cursor = new LexerCursor {
                 Input = input,
-                MaxStack=256
+                MaxStack = 256
             };
 
             while (cursor.Peek("$", @".", false)) {
@@ -50,15 +49,6 @@ namespace Sprockets.DocumentIndexer.Lucene {
                     if (ExtractContent(cursor))
                         continue;
 
-                    if (cursor.TryMatch(KeywordOperator, "\\+")) {
-                        continue;
-                    }
-
-
-                    if (cursor.TryMatch(KeywordOperator, "\\-")) {
-                        continue;
-                    }
-
                     var exitPop = cursor.TryPop(KeywordParenthesesClose, @"\)", ref closuresRequired);
 
                     if (exitPop)
@@ -74,17 +64,11 @@ namespace Sprockets.DocumentIndexer.Lucene {
             return cursor;
         }
 
-        private static bool ExtractContent(LexerCursor cursor) {
-            cursor.PassThrough(KeywordWhiteSpace, @"\s+");
-            ExtractQuoteString(cursor);
-            return ExtractOperator(cursor) || ExtractSearchTerm(cursor);
-        }
-
 
         public static void ExtractQuoteString(LexerCursor cursor) {
             bool? closed = null;
             while (!cursor.EOF) {
-                if (cursor.Peek(null,"\""))
+                if (cursor.Peek(null, "\""))
                     if (null == closed) {
                         closed = false;
                         cursor.TryMatch(KeywordQuoteContent, "\"");
@@ -96,13 +80,13 @@ namespace Sprockets.DocumentIndexer.Lucene {
 
                 if (closed == null)
                     break;
+
                 if (cursor.TryMatch(KeywordQuoteContent, @"\\[\""]"))
                     continue;
 
                 // tag unexpected backslashes to be ignored
-                if (cursor.TryMatch(null, @"(\\$|\\.)")) {
+                if (cursor.TryMatch(null, @"(\\$|\\.)"))
                     continue;
-                }
                 if (cursor.TryMatch(KeywordQuoteContent, @"[^\\\""]+"))
                     continue;
                 // LOOP EXIT
@@ -114,10 +98,21 @@ namespace Sprockets.DocumentIndexer.Lucene {
                 cursor.FakeMatch(KeywordQuoteContent, @"""", pop: true);
         }
 
-        private static bool ExtractOperator(LexerCursor cursor)
-        {
+        private static bool ExtractContent(LexerCursor cursor) {
+            cursor.PassThrough(KeywordWhiteSpace, @"\s+");
+            ExtractQuoteString(cursor);
+
+            if (ExtractOperator(cursor) || ExtractSearchTerm(cursor))
+                return true;
+
+            return cursor.TryMatch(KeywordOperator, "\\+") ||
+                   cursor.TryMatch(KeywordOperator, "\\-");
+        }
+
+        private static bool ExtractOperator(LexerCursor cursor) {
             return cursor.TryMatch(KeywordOperator, @"(OR|AND|NOT)");
         }
+
         private static bool ExtractSearchTerm(LexerCursor cursor) {
             return cursor.TryMatch(KeywordOperand, @"(?<var>[\w\.\*\?]+)(\~(?<dif>(\d?\.)?\d+))?");
         }
