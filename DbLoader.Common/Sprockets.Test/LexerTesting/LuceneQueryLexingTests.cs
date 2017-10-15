@@ -15,6 +15,7 @@
  * *********************************************************************************/
 
 using System;
+using System.Text;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -54,9 +55,9 @@ namespace Sprockets.Test.LexerTesting {
         public void IdealCase_TwoQuoteFuzzyIntegerNumber() {
             TestQuery("\"quote\"~1 \"quote\"~.2", "\"quote\"~1 \"quote\"~.2");
         }
+
         [TestMethod]
-        public void IdealCase_LogicAndStylingMaintainedOnQueryRewrite()
-        {
+        public void IdealCase_LogicAndStylingMaintainedOnQueryRewrite() {
             TestQuery("((a OR c) AND d) AND E OR (g AND h OR i)", "((a OR c) AND d) AND E OR (g AND h OR i)");
         }
 
@@ -146,26 +147,74 @@ namespace Sprockets.Test.LexerTesting {
         public void BadCase_CleansDuplicateNotOperator() {
             TestQuery("a NOT NOT b", "a !b");
         }
+        [TestMethod]
+        public void BadCase_FuzzGenerated_001()
+        {
+            TestQuery("OROR1 ANDAND1OR(  +1var+)varvar ANDAND) 1!var+varOR", "OROR1 ANDAND1OR(+1var)varvar ANDAND 1!var+varOR");
+        }
+
+        //[TestMethod]
+        //public void BadCase_FuzzGenerated_002()
+        //{
+        //    TestQuery("OR !)(! +11ORORAND) !OR(ORvarOR AND+OR()+OROR", null);
+        //}
+
+
+        [TestMethod]
+        public void FuzzTest() {
+            string[] input = {
+                "var",
+                " ",
+                "1",
+                "!",
+                "+",
+                "AND",
+                "OR",
+                "(",
+                ")"
+            };
+            for (var i = 0; i < 100; i++)
+                TestQuery(CreateFuzz(30, input), null);
+        }
+
+        private string CreateFuzz(int length, params string[] input) {
+            var rnd = new Random((int) DateTime.Now.Ticks);
+            var sb = new StringBuilder();
+            for (var i = 0; i < length; i++)
+                sb.Append(input[rnd.Next() % input.Length]);
+
+            return sb.ToString();
+        }
 
         private static LexerCursor TestQuery(string input, string expectOutput) {
-            var segments = LuceneQueryParser.ParseQuery(input);
-            var actual = LuceneQuerySanitizer.Sanitize(segments);
-            Console.WriteLine("Unsantized Input: {0}", input);
-            Console.WriteLine("Expected Output: {0}", expectOutput);
-            Console.WriteLine("Actual Output: {0}", actual);
-            Assert.AreEqual(expectOutput, actual);
-
             try {
-                QueryParser p = new QueryParser(Version.LUCENE_30, "FIELD", new StandardAnalyzer(Version.LUCENE_29));
-                p.AllowLeadingWildcard = true;
-                
-                p.Parse(actual);
+                var segments = LuceneQueryParser.ParseQuery(input);
+                var actual = LuceneQuerySanitizer.Sanitize(segments);
+
+                if (expectOutput != null) {
+                    Console.WriteLine("Unsantized Input: {0}", input);
+                    Console.WriteLine("Expected Output: {0}", expectOutput);
+                    Console.WriteLine("Actual Output: {0}", actual);
+                    Assert.AreEqual(expectOutput, actual);
+                }
+
+                try {
+                    var p = new QueryParser(Version.LUCENE_30, "FIELD", new StandardAnalyzer(Version.LUCENE_29));
+                    p.AllowLeadingWildcard = true;
+
+                    p.Parse(actual);
+                }
+                catch (Exception x) {
+                    Console.WriteLine(x.Message);
+                    Assert.Fail("QUERY CORRECTION FAILED");
+                }
+                return segments;
             }
             catch (Exception x) {
-                Console.WriteLine(x.Message);
-                Assert.Fail("QUERY CORRECTION FAILED");
+
+                Console.WriteLine(input);
+                throw;
             }
-            return segments;
         }
     }
 }

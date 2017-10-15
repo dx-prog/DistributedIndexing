@@ -25,6 +25,7 @@ namespace Sprockets.DocumentIndexer.Lucene {
         public const string KeywordOperand = "OPERAND";
         public const string KeywordWhiteSpace = "WHITESPACE";
 
+
         public static LexerCursor ParseQuery(string input) {
             var cursor = new LexerCursor {
                 Input = input,
@@ -92,6 +93,9 @@ namespace Sprockets.DocumentIndexer.Lucene {
                 // LOOP EXIT
                 if (cursor.EOF)
                     break;
+
+                // if we get down here then we have an issue
+                cursor.TryMatch(null,".");
             }
 
             if (closed == false)
@@ -102,15 +106,19 @@ namespace Sprockets.DocumentIndexer.Lucene {
             cursor.PassThrough(KeywordWhiteSpace, @"\s+");
             ExtractQuoteString(cursor);
 
+            if (cursor.TryMatch(KeywordOperator, "\\+") ||
+                cursor.TryMatch(KeywordOperator, "\\-") ||
+                cursor.TryMatch(KeywordOperator, "\\!") ||
+                cursor.TryMatch(KeywordOperator, "NOT\b"))
+                return true;
             if (ExtractOperator(cursor) || ExtractSearchTerm(cursor))
                 return true;
 
-            return cursor.TryMatch(KeywordOperator, "\\+") ||
-                   cursor.TryMatch(KeywordOperator, "\\-");
+            return false;
         }
 
         private static bool ExtractOperator(LexerCursor cursor) {
-            return cursor.TryMatch(KeywordOperator, @"(OR|AND|NOT)");
+            return cursor.TryMatch(KeywordOperator, @"(\bOR\b|\bAND\b)");
         }
 
         private static bool ExtractSearchTerm(LexerCursor cursor) {
