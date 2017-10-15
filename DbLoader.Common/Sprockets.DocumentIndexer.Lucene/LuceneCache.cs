@@ -38,6 +38,10 @@ namespace Sprockets.DocumentIndexer.Lucene {
             Disk
         }
 
+        public const string FlexhSearch = "FLEX";
+        public const string FullSearch = "FULL";
+        public const string Simple = "";
+
         private readonly Directory _directory;
         private readonly LuceneDataProvider _provider;
         private readonly AsyncLocal<ISession<TextDocument>> _session = new AsyncLocal<ISession<TextDocument>>();
@@ -75,19 +79,18 @@ namespace Sprockets.DocumentIndexer.Lucene {
             }
         }
 
+        public string[] SupportQueryLanguages => new[] {FlexhSearch, FullSearch, Simple};
+
         public IEnumerable<SearchResult> Search(TextSearch search) {
-     
             using (OpenCache()) {
                 var parser = _provider.CreateQueryParser<TextDocument>("SearchText");
                 parser.AllowLeadingWildcard = true;
                 var query = new StringBuilder();
-                if (search.QueryLanguage == "ADVANCED") {
-                
-                    var actual = LuceneQuerySanitizer.Sanitize(search.Content);
-                    foreach (var match in _provider.AsQueryable<TextDocument>().Where(parser.Parse(actual)))
-                    {
-                        var tmp = new SearchResult
-                        {
+                var flexSearch = search.QueryLanguage == FlexhSearch;
+                if (flexSearch || search.QueryLanguage == FullSearch) {
+                    var actual = flexSearch ? LuceneQuerySanitizer.Sanitize(search.Content) : search.Content;
+                    foreach (var match in _provider.AsQueryable<TextDocument>().Where(parser.Parse(actual))) {
+                        var tmp = new SearchResult {
                             FriendlyName = match.FriendlyName,
                             HostName = Environment.MachineName,
                             LocalSourceIdentity = match.Id,
@@ -107,7 +110,9 @@ namespace Sprockets.DocumentIndexer.Lucene {
             }
         }
 
-        private IEnumerable<SearchResult> SimpleSearch(TextSearch search, StringBuilder query, FieldMappingQueryParser<TextDocument> parser) {
+        private IEnumerable<SearchResult> SimpleSearch(TextSearch search,
+            StringBuilder query,
+            FieldMappingQueryParser<TextDocument> parser) {
             var args = search.Content.Split(' ').Distinct().ToArray();
             foreach (var arg in args) {
                 if (query.Length > 0)

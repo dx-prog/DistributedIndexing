@@ -18,6 +18,7 @@ using System.Collections.Generic;
 
 namespace Sprockets.Core.DocumentIndexing.Types {
     public interface ISearchProvider {
+        string [] SupportQueryLanguages { get; }
         IEnumerable<SearchResult> Search(TextSearch search);
     }
 }

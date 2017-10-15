@@ -22,11 +22,15 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Sprockets.Core.Disposables;
 using Sprockets.Core.DocumentIndexing.Types;
 using Sprockets.Core.IO;
 
 namespace Sprockets.Core.DocumentIndexing.CacheProviders {
     public class DefaultIntermediateCacheProvider : IIntermediateCache, ISearchProvider {
+        public const string QueryByRegex = "REGEX";
+        public const string QueryByPlainText = "PLAIN";
+        public const string QueryByRegexXml = "REGEX+XML";
         private readonly string _dropFolder;
 
 
@@ -36,7 +40,7 @@ namespace Sprockets.Core.DocumentIndexing.CacheProviders {
         }
 
         public IDisposable OpenCache() {
-            return new Disposables.DisposableStopwatch();
+            return new DisposableStopwatch();
         }
 
         public string Save(string remoteSourceIdentity,
@@ -95,6 +99,18 @@ namespace Sprockets.Core.DocumentIndexing.CacheProviders {
             File.SetAttributes(finalPath, FileAttributes.ReadOnly);
         }
 
+        public void Clear() {
+            var finalPath = FilePathSanitizer.AssureTrailingPathSlash(_dropFolder);
+            foreach (var file in Directory.EnumerateFiles(finalPath, "*.idx")) {
+                File.SetAttributes(file, FileAttributes.Normal);
+                File.SetAttributes(GetInfoFileName(file), FileAttributes.Normal);
+
+                File.Delete(file);
+                File.Delete(GetInfoFileName(file));
+            }
+        }
+
+
         public IEnumerable<SearchResult> Search(TextSearch search) {
             var matchers = GetQuery(search);
 
@@ -125,16 +141,7 @@ namespace Sprockets.Core.DocumentIndexing.CacheProviders {
                 }
         }
 
-        public void Clear() {
-            var finalPath = FilePathSanitizer.AssureTrailingPathSlash(_dropFolder);
-            foreach (var file in Directory.EnumerateFiles(finalPath, "*.idx")) {
-                File.SetAttributes(file, FileAttributes.Normal);
-                File.SetAttributes(GetInfoFileName(file), FileAttributes.Normal);
-
-                File.Delete(file);
-                File.Delete(GetInfoFileName(file));
-            }
-        }
+        public string[] SupportQueryLanguages => new[] {QueryByRegex, QueryByPlainText, QueryByRegexXml};
 
         private static string CreateCacheEntry(string remoteSourceIdentity,
             string friendlyName,
@@ -166,13 +173,13 @@ namespace Sprockets.Core.DocumentIndexing.CacheProviders {
             var language = (search.QueryLanguage ?? "PLAIN").ToUpperInvariant();
             var query = search.Content;
             switch (language) {
-                case "REGEX":
+                case QueryByRegex:
                     AddFullRegex(matchers, query);
                     break;
-                case "PLAIN":
+                case QueryByPlainText:
                     AddEscapedRegex(matchers, query);
                     break;
-                case "REGEX+XML":
+                case QueryByRegexXml:
                     var markup = XElement.Parse(search.Content);
 
                     foreach (var pattern in markup.Descendants("regex"))
