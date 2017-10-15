@@ -32,7 +32,9 @@ namespace Sprockets.DocumentIndexer.Lucene {
                 MaxStack = 256
             };
 
+            var lastPosition = -1;
             while (cursor.Peek("$", @".", false)) {
+
                 // LOOP EXIT
                 if (cursor.EOF)
                     break;
@@ -43,6 +45,7 @@ namespace Sprockets.DocumentIndexer.Lucene {
                 cursor.Ignore(@"\)");
                 var closuresRequired = 0;
                 while (!cursor.EOF) {
+                    lastPosition = GobbleUnsupported(lastPosition, cursor);
                     if (!cursor.TryPush(KeywordParenthesesOpen, @"\(", ref closuresRequired))
                         break;
 
@@ -60,9 +63,19 @@ namespace Sprockets.DocumentIndexer.Lucene {
                     closuresRequired--;
                     cursor.FakeMatch(KeywordParenthesesClose, @")", pop: true);
                 }
+
             }
 
             return cursor;
+        }
+
+        private static int GobbleUnsupported(int lastPosition, LexerCursor cursor) {
+            if (lastPosition != cursor.Position)
+                lastPosition = cursor.Position;
+            else {
+                cursor.TryMatch(null, ".");
+            }
+            return lastPosition;
         }
 
 
@@ -74,7 +87,7 @@ namespace Sprockets.DocumentIndexer.Lucene {
                         closed = false;
                         cursor.TryMatch(KeywordQuoteContent, "\"");
                     }
-                    else if (cursor.TryMatch(KeywordQuoteContent, @"([""](\~0*\.?[\d]+)?)")) {
+                    else if (cursor.TryMatch(KeywordQuoteContent, @"([""](\~\d{1,4}(\z|(?=\s)))?)")) {
                         closed = true;
                         break;
                     }
@@ -94,8 +107,6 @@ namespace Sprockets.DocumentIndexer.Lucene {
                 if (cursor.EOF)
                     break;
 
-                // if we get down here then we have an issue
-                cursor.TryMatch(null,".");
             }
 
             if (closed == false)
@@ -122,7 +133,7 @@ namespace Sprockets.DocumentIndexer.Lucene {
         }
 
         private static bool ExtractSearchTerm(LexerCursor cursor) {
-            return cursor.TryMatch(KeywordOperand, @"(?<var>[\w\.\*\?]+)(\~(?<dif>(\d?\.)?\d+))?");
+            return cursor.TryMatch(KeywordOperand, @"(?<var>[\w\.\*\?]+)(\~0*\.\d{1,4}(\z|(?=\s)))?");
         }
     }
 }

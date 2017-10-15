@@ -37,23 +37,23 @@ namespace Sprockets.Test.LexerTesting {
         }
 
         [TestMethod]
-        public void IdealCase_SingleQuoteFuzzyRealNumber() {
-            TestQuery("\"quote\"~.1", "\"quote\"~.1");
+        public void IdealCase_FuzzyMatch() {
+            TestQuery("quote~.1", "quote~.1");
         }
 
         [TestMethod]
-        public void IdealCase_SingleQuoteFuzzyIntegerNumber() {
+        public void IdealCase_ProximalSearch() {
             TestQuery("\"quote\"~1", "\"quote\"~1");
         }
 
         [TestMethod]
-        public void IdealCase_TwoQuoteFuzzyRealNumber() {
-            TestQuery("\"quote\"~.1 \"quote\"~.2", "\"quote\"~.1 \"quote\"~.2");
+        public void IdealCase_TwoProximalSearch() {
+            TestQuery("\"quote\"~5 \"quote\"~7", "\"quote\"~5 \"quote\"~7");
         }
 
         [TestMethod]
-        public void IdealCase_TwoQuoteFuzzyIntegerNumber() {
-            TestQuery("\"quote\"~1 \"quote\"~.2", "\"quote\"~1 \"quote\"~.2");
+        public void IdealCase_TwoFuzzySearch() {
+            TestQuery("quote~.1 quote~.6", "quote~.1 quote~.6");
         }
 
         [TestMethod]
@@ -183,12 +183,16 @@ namespace Sprockets.Test.LexerTesting {
             TestQuery("+(1 !(varvarOR(+OR!AND1AND)1varAND))",
                 "+(1 !(varvarOR(!AND1AND)1varAND))");
         }
-
-        
-
+        [TestMethod]
+        public void BadCase_FuzzGenerated_004()
+        {
+            TestQuery("\"~8\"~8OR",
+                "\"~8\"8OR");
+        }
+      
 
         [TestMethod]
-        public void FuzzTest() {
+        public void FuzzTest_Basic() {
             string[] input = {
                 "var",
                 " ",
@@ -199,6 +203,34 @@ namespace Sprockets.Test.LexerTesting {
                 "OR",
                 "(",
                 ")"
+            };
+            for (var i = 0; i < 100; i++)
+                TestQuery(CreateFuzz(30, input), null);
+        }
+
+
+        [TestMethod]
+        public void FuzzTest_Advanced()
+        {
+            string[] input = {
+                "var",
+                " ",
+                "1",
+                "!",
+                "+",
+                "AND",
+                "OR",
+                "(",
+                ")",
+                "*",
+                "~",
+                "?",
+                "[",
+                "]",
+                "0.1",
+                "\"",
+                "\"~8",
+                "~.2",
             };
             for (var i = 0; i < 100; i++)
                 TestQuery(CreateFuzz(30, input), null);
