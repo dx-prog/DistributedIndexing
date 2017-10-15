@@ -25,5 +25,7 @@ namespace Sprockets.DocumentIndexer.Lucene.Types {
 
 
         public override string Value => string.Concat(Tokens);
+
+        public override bool IsOperand => true;
     }
 }

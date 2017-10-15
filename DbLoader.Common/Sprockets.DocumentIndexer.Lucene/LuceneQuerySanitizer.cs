@@ -28,7 +28,7 @@ namespace Sprockets.DocumentIndexer.Lucene {
             ')'
         };
 
-        public static string Sanitize(LexerCursor inputCursor) {
+         static string SanitizePhase(LexerCursor inputCursor) {
             var elements = new List<LexCapture>();
             RemoveDisallowedRepeats(inputCursor, elements);
 
@@ -138,6 +138,21 @@ namespace Sprockets.DocumentIndexer.Lucene {
                 return true;
 
             return !Repeatables.Contains(element.Value[0]);
+        }
+
+        public static string Sanitize(string unsanitizedInput) {
+            var input = unsanitizedInput;
+            while (true)
+            { 
+                var segments = LuceneQueryParser.ParseQuery(input);
+                var phaseResult = SanitizePhase(segments);
+
+                if (phaseResult == input)
+                    return phaseResult;
+
+                input = phaseResult;
+            } 
+
         }
     }
 }

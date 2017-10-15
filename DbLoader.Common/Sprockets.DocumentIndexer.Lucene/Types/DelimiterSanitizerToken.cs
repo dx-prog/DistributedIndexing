@@ -20,5 +20,7 @@ namespace Sprockets.DocumentIndexer.Lucene.Types {
         }
 
         public override int Priority => 0;
+
+        public override bool IsOperand => false;
     }
 }

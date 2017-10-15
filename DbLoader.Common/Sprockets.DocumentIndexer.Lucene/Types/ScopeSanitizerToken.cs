@@ -14,7 +14,9 @@
  * limitations under the License.
  * *********************************************************************************/
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Sprockets.DocumentIndexer.Lucene.Types {
@@ -49,12 +51,44 @@ namespace Sprockets.DocumentIndexer.Lucene.Types {
             var input = Tokens;
 
             // TODO: USE INFEX TO POSTFIX INSTEAD OF PHASE PASS?
-            ProcessUnary(input, out var tmp, "NOT");
-            ProcessUnary(tmp, out tmp, "!");
-            ProcessUnary(tmp, out tmp, "-");
-            ProcessUnary(tmp, out tmp, "+");
-            ProcessBinary(tmp, out tmp, "AND");
-            ProcessBinary(tmp, out tmp, "OR");
+            var tmp = input;
+            var cycled = 0;
+            do {
+                cycled = 0;
+
+                if (ProcessUnary(tmp, out tmp, "NOT")) {
+                    cycled++;
+                    continue;
+                }
+
+                if (ProcessUnary(tmp, out tmp, "!")) {
+                    cycled++;
+                    continue;
+                }
+
+                if (ProcessUnary(tmp, out tmp, "-")) {
+                    cycled++;
+                    continue;
+                }
+
+                if (ProcessUnary(tmp, out tmp, "+")) {
+                    cycled++;
+                    continue;
+                }
+
+                if (ProcessBinary(tmp, out tmp, "AND")) {
+                    cycled++;
+                    continue;
+                }
+
+                if (ProcessBinary(tmp, out tmp, "OR")) {
+                    cycled++;
+                    continue;
+                }
+
+                if (RemoveInvalid(tmp, out tmp))
+                    cycled++;
+            } while (cycled > 0);
             foreach (var n in tmp)
                 n.Sanitize();
 
@@ -63,7 +97,17 @@ namespace Sprockets.DocumentIndexer.Lucene.Types {
                 Tokens.AddLast(token);
         }
 
-        private static void ProcessUnary(LinkedList<CodeSanitizerToken> input,
+        private bool RemoveInvalid(LinkedList<CodeSanitizerToken> input,
+            out LinkedList<CodeSanitizerToken> output) {
+            output = new LinkedList<CodeSanitizerToken>();
+            for (var n = input.First; n != null; n = n.Next)
+                if (n.Value.IsOperand)
+                    output.AddLast(n.Value);
+
+            return output.Count != input.Count;
+        }
+
+        private static bool ProcessUnary(LinkedList<CodeSanitizerToken> input,
             out LinkedList<CodeSanitizerToken> output,
             string key) {
             output = new LinkedList<CodeSanitizerToken>();
@@ -75,19 +119,42 @@ namespace Sprockets.DocumentIndexer.Lucene.Types {
                 }
 
                 if (n.Value is UnaryOperatorSanitizerToken unary && unary.OriginalValue == key) {
+                    if (unary.IsOperand) {
+                        output.AddLast(n.Value);
+                        DebugCheck(output, n.Value);
+                        continue;
+                    }
+
                     var next = GobbleDelimiterSanitizerToken(n);
                     if (next == null)
                         continue;
+
+                    if (!next.Value.IsOperand) {
+                        output.AddLast(unary);
+                        DebugCheck(output, n.Value);
+                        continue;
+                    }
 
                     unary.Argument = next.Value;
 
 
                     output.AddLast(unary);
+                    DebugCheck(output, unary);
                     n = next;
                 }
                 else {
                     output.AddLast(n.Value);
+                    DebugCheck(output, n.Value);
                 }
+            }
+
+            return output.Count != input.Count;
+        }
+
+        [Conditional("DEBUG")]
+        private static void DebugCheck(LinkedList<CodeSanitizerToken> output, CodeSanitizerToken nValue) {
+            if (output.ToArray().Length != output.ToArray().Distinct().ToArray().Length) {
+                
             }
         }
 
@@ -103,7 +170,7 @@ namespace Sprockets.DocumentIndexer.Lucene.Types {
             return linkedListNode;
         }
 
-        private static void ProcessBinary(LinkedList<CodeSanitizerToken> input,
+        private static bool ProcessBinary(LinkedList<CodeSanitizerToken> input,
             out LinkedList<CodeSanitizerToken> output,
             string key) {
             output = new LinkedList<CodeSanitizerToken>();
@@ -115,6 +182,12 @@ namespace Sprockets.DocumentIndexer.Lucene.Types {
                             output.Last?.Value?.IncreasePadRight();
                         continue;
                     case BinaryOperatorSanitizerToken binary when binary.OriginalValue == key:
+                        if (binary.IsOperand) {
+                            output.AddLast(n.Value);
+                            DebugCheck(output, n.Value);
+                            continue;
+                        }
+
                         var next = GobbleDelimiterSanitizerToken(n);
                         var lastNode = output.Last;
                         if (next == null)
@@ -122,17 +195,28 @@ namespace Sprockets.DocumentIndexer.Lucene.Types {
                         if (lastNode == null)
                             continue;
 
+                        if (!lastNode.Value.IsOperand || !next.Value.IsOperand) {
+                            output.AddLast(binary);
+                            DebugCheck(output, n.Value);
+                            continue;
+                        }
+
                         binary.Left = lastNode.Value;
                         binary.Right = next.Value;
 
                         output.RemoveLast();
                         output.AddLast(binary);
+                        DebugCheck(output, binary);
                         n = next;
                         break;
                     default:
+
                         output.AddLast(n.Value);
+                        DebugCheck(output, n.Value);
                         break;
                 }
+
+            return output.Count != input.Count;
         }
     }
 }

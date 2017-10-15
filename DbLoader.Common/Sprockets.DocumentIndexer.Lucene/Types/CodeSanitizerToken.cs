@@ -58,6 +58,8 @@ namespace Sprockets.DocumentIndexer.Lucene.Types {
             if (PadRight == 0)
                 PadRight++;
         }
+
+        public virtual bool IsOperand { get; } = false;
     }
 
     public class OperatorSanitizerToken : CodeSanitizerToken {

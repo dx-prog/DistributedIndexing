@@ -57,10 +57,22 @@ namespace Sprockets.Test.LexerTesting {
         }
 
         [TestMethod]
-        public void IdealCase_LogicAndStylingMaintainedOnQueryRewrite() {
-            TestQuery("((a OR c) AND d) AND E OR (g AND h OR i)", "((a OR c) AND d) AND E OR (g AND h OR i)");
+        public void IdealCase_LogicAndStylingMaintainedOnQueryRewrite_001()
+        {
+            TestQuery("(a OR c)", "(a OR c)");
         }
 
+        [TestMethod]
+        public void IdealCase_LogicAndStylingMaintainedOnQueryRewrite_002()
+        {
+            TestQuery("(a OR c) AND d)", "(a OR c) AND d");
+        }
+
+        [TestMethod]
+        public void IdealCase_LogicAndStylingMaintainedOnQueryRewrite_004()
+        {
+            TestQuery("((a OR c) AND d) AND E OR (g AND h OR i)", "((a OR c) AND d) AND E OR (g AND h OR i)");
+        }
         [TestMethod]
         public void IdealCase_SingleParentheticalGroup() {
             TestQuery("(a c)", "(a c)");
@@ -147,17 +159,32 @@ namespace Sprockets.Test.LexerTesting {
         public void BadCase_CleansDuplicateNotOperator() {
             TestQuery("a NOT NOT b", "a !b");
         }
+
+        [TestMethod]
+        public void BadCase_CleansNonCompatibleNestedUnary()
+        {
+            TestQuery("!+5", "!(+5)");
+        }
         [TestMethod]
         public void BadCase_FuzzGenerated_001()
         {
             TestQuery("OROR1 ANDAND1OR(  +1var+)varvar ANDAND) 1!var+varOR", "OROR1 ANDAND1OR(+1var)varvar ANDAND 1!var+varOR");
         }
 
-        //[TestMethod]
-        //public void BadCase_FuzzGenerated_002()
-        //{
-        //    TestQuery("OR !)(! +11ORORAND) !OR(ORvarOR AND+OR()+OROR", null);
-        //}
+        [TestMethod]
+        public void BadCase_FuzzGenerated_002()
+        {
+            TestQuery("OR !)(! +11ORORAND) !OR(ORvarOR AND+OR()+OROR", "!(!(+11ORORAND)) (ORvarOR +OROR)");
+        }
+
+        [TestMethod]
+        public void BadCase_FuzzGenerated_003()
+        {
+            TestQuery("+(1 !(varvarOR(+OR!AND1AND)1varAND))",
+                "+(1 !(varvarOR(!AND1AND)1varAND))");
+        }
+
+        
 
 
         [TestMethod]
@@ -188,15 +215,12 @@ namespace Sprockets.Test.LexerTesting {
 
         private static LexerCursor TestQuery(string input, string expectOutput) {
             try {
-                var segments = LuceneQueryParser.ParseQuery(input);
-                var actual = LuceneQuerySanitizer.Sanitize(segments);
-
-                if (expectOutput != null) {
-                    Console.WriteLine("Unsantized Input: {0}", input);
-                    Console.WriteLine("Expected Output: {0}", expectOutput);
-                    Console.WriteLine("Actual Output: {0}", actual);
-                    Assert.AreEqual(expectOutput, actual);
-                }
+     
+                var actual = LuceneQuerySanitizer.Sanitize(input);
+                Console.WriteLine("Unsantized Input: {0}", input);
+                Console.WriteLine("Expected Output: {0}", expectOutput);
+                Console.WriteLine("Actual Output: {0}", actual);
+        
 
                 try {
                     var p = new QueryParser(Version.LUCENE_30, "FIELD", new StandardAnalyzer(Version.LUCENE_29));
@@ -208,7 +232,13 @@ namespace Sprockets.Test.LexerTesting {
                     Console.WriteLine(x.Message);
                     Assert.Fail("QUERY CORRECTION FAILED");
                 }
-                return segments;
+                if (expectOutput != null)
+                {
+
+                    Assert.AreEqual(expectOutput, actual);
+                }
+
+                return null;
             }
             catch (Exception x) {
 

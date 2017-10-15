@@ -18,5 +18,7 @@ namespace Sprockets.DocumentIndexer.Lucene.Types {
     public class OperandSanitizerToken : CodeSanitizerToken {
         public OperandSanitizerToken(string value) : base(value) {
         }
+
+        public override bool IsOperand => true;
     }
 }

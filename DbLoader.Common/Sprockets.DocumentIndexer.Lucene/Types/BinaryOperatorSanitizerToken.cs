@@ -38,5 +38,18 @@ namespace Sprockets.DocumentIndexer.Lucene.Types {
             Left?.Sanitize();
             Right?.Sanitize();
         }
+
+
+        public override bool IsOperand
+        {
+            get
+            {
+                if (Left == null)
+                    return false;
+                if (Right == null)
+                    return false;
+                return Left.IsOperand && Right.IsOperand;
+            }
+        }
     }
 }

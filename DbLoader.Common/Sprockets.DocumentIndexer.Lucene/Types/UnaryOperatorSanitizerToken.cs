@@ -23,10 +23,31 @@ namespace Sprockets.DocumentIndexer.Lucene.Types {
 
         public override int Priority => 95;
 
-        public override string Value => OriginalValue + Argument;
+        public override string Value {
+            get {
+                if (Argument?.OriginalValue == this.OriginalValue)
+                    return Argument?.ToString();
+
+                if (Argument is UnaryOperatorSanitizerToken)
+                    return OriginalValue + "(" + Argument + ")";
+                if (Argument is BinaryOperatorSanitizerToken)
+                    return OriginalValue + "(" + Argument + ")";
+                return OriginalValue + Argument;
+
+            }
+        }
 
         public override void Sanitize() {
             Argument?.Sanitize();
+        }
+
+        public override bool IsOperand {
+            get {
+                if (Argument == null)
+                    return false;
+
+                return Argument.IsOperand;
+            }
         }
     }
 }

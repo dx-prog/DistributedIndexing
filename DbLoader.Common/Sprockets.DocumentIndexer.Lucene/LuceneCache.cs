@@ -82,8 +82,8 @@ namespace Sprockets.DocumentIndexer.Lucene {
                 parser.AllowLeadingWildcard = true;
                 var query = new StringBuilder();
                 if (search.QueryLanguage == "ADVANCED") {
-                    var segments = LuceneQueryParser.ParseQuery(search.Content);
-                    var actual = LuceneQuerySanitizer.Sanitize(segments);
+                
+                    var actual = LuceneQuerySanitizer.Sanitize(search.Content);
                     foreach (var match in _provider.AsQueryable<TextDocument>().Where(parser.Parse(actual)))
                     {
                         var tmp = new SearchResult

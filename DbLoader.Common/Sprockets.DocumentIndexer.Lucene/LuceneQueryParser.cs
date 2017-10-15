@@ -109,7 +109,7 @@ namespace Sprockets.DocumentIndexer.Lucene {
             if (cursor.TryMatch(KeywordOperator, "\\+") ||
                 cursor.TryMatch(KeywordOperator, "\\-") ||
                 cursor.TryMatch(KeywordOperator, "\\!") ||
-                cursor.TryMatch(KeywordOperator, "NOT\b"))
+                cursor.TryMatch(KeywordOperator, "NOT[\\s$]"))
                 return true;
             if (ExtractOperator(cursor) || ExtractSearchTerm(cursor))
                 return true;
