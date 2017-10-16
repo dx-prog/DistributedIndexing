@@ -5,6 +5,27 @@ project by David Garcia into the areas of distributed search, indexing, and comp
 integrated learning systems. The contributor(s), author(s), and/or sponsor(s), or other 
 Contributor of the Project make the Project available under the Apache 2.0 License. 
 
+
+# FEATURES SO FAR
+
+## LEXER
+*Project File:* Sprockets.Lexer 
+The project (the "Lexer") is designed to help parse content, queries, and scripts for consumption by indexing systems
+or script engines.
+
+### Lucene Query Sanitizer
+*Project File:* Sprockets.DocumentIndexer.Lucene
+Lucene Query Sanitizer is now functional. This tool allows developers to expose search engines that can support boolean and fuzzy searches
+in a manner that is flexible and resistant to malformed queries. This is ideal for enabling advance search without punishing users who
+are not familiar with strict boolean logic.
+Examples:
+	(house AND garden)) OR land
+		*becomes*
+	(house AND garden) OR land
+
+
+
+
 ---
 # FEATURE SET TODO
 The following is a set of ideal features for my research project.
