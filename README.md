@@ -19,9 +19,9 @@ Lucene Query Sanitizer is now functional. This tool allows developers to expose 
 in a manner that is flexible and resistant to malformed queries. This is ideal for enabling advance search without punishing users who
 are not familiar with strict boolean logic.
 Examples:
-	(house AND garden)) OR land
-		*becomes*
-	(house AND garden) OR land
+ >   (house AND garden)) OR land
+ >			*becomes*
+ >   (house AND garden) OR land
 
 
 
@@ -88,7 +88,7 @@ information hereafter is provided "AS-IS" in accordance to the license for the P
 ## Possible Inclusions
 * (Legal XML) [http://www.legalxml.org/]
 * PDF
-* Office Open XML
+* Open Office XML
 * OpenDocument Format (ODF)
 * Markdown
 
