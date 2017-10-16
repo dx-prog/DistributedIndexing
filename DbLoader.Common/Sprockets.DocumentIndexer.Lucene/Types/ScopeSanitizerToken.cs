@@ -154,7 +154,7 @@ namespace Sprockets.DocumentIndexer.Lucene.Types {
         [Conditional("DEBUG")]
         private static void DebugCheck(LinkedList<CodeSanitizerToken> output, CodeSanitizerToken nValue) {
             if (output.ToArray().Length != output.ToArray().Distinct().ToArray().Length) {
-                
+                throw new InvalidOperationException();
             }
         }
 
