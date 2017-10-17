@@ -14,11 +14,7 @@
  * limitations under the License.
  * *********************************************************************************/
 
-using System.Collections.Generic;
-using System.Text;
-
-namespace Sprockets.Core.Security
-{
+namespace Sprockets.Core.Security {
     public interface IRoleAuthority {
         bool IsInRole(string roleName);
     }

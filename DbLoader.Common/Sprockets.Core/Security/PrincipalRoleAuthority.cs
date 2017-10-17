@@ -21,12 +21,12 @@ using System.Threading;
 namespace Sprockets.Core.Security {
     public class PrincipalRoleAuthority : IRoleAuthority {
         private readonly Func<IPrincipal> _source;
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="source">Null will result in using Thread.CurrentPrincipal</param>
-        public PrincipalRoleAuthority(IPrincipal source=null) {
-            _source = () => (source ?? Thread.CurrentPrincipal);
+        public PrincipalRoleAuthority(IPrincipal source = null) {
+            _source = () => source ?? Thread.CurrentPrincipal;
         }
 
         public bool IsInRole(string roleName) {

@@ -15,35 +15,31 @@
  * *********************************************************************************/
 
 using System;
-using System.Threading;
+using System.Runtime.ConstrainedExecution;
 
 namespace Sprockets.Core.Disposables {
-    /// <summary>
-    ///     Helper to avoid having to create IDisposable
-    ///     classes used to perform limited operations.
-    /// </summary>
-    public class DisposableAction : IDisposableAction {
-        private readonly Action _action;
-        private int _executed;
+    public class FinalizerAction : CriticalFinalizerObject, IDisposableAction {
+        private readonly DisposableAction _action;
 
-        public DisposableAction(Action action) {
-            _action = action ?? (() => { });
+        public FinalizerAction(Action action) {
+            _action = new DisposableAction(action);
         }
 
-        public virtual void Dispose() {
-            if (Deactivate() > 1)
-                return;
-
-            _action();
+        public FinalizerAction(DisposableAction action) {
+            _action = action;
         }
 
+        public void Dispose() {
+            _action?.Dispose();
+            GC.SuppressFinalize(this);
+        }
 
-        /// <summary>
-        ///     Disables the action without calling it
-        /// </summary>
-        /// <returns></returns>
         public int Deactivate() {
-            return Interlocked.Increment(ref _executed);
+            return (_action?.Deactivate()).GetValueOrDefault(-1);
+        }
+
+        ~FinalizerAction() {
+            Dispose();
         }
     }
 }

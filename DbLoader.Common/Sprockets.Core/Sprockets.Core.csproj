@@ -12,4 +12,13 @@
     <Folder Include="Context\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\..\..\..\.nuget\packages\newtonsoft.json\10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security">
+      <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7\System.Security.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

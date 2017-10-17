@@ -29,7 +29,6 @@ namespace Sprockets.Core.Security {
         public RoleAuthorityPermission() {
         }
 
-        public static IRoleAuthority RoleAuthority { get; set; } = new PrincipalRoleAuthority();
         public RoleAuthorityPermission(bool allManditory, params string[] roles) {
             foreach (var role in roles)
                 _roles.Add(role);
@@ -43,6 +42,8 @@ namespace Sprockets.Core.Security {
 
             AllManditory = allManditory;
         }
+
+        public static IRoleAuthority RoleAuthority { get; set; } = new PrincipalRoleAuthority();
 
         public bool AllManditory { get; private set; }
 

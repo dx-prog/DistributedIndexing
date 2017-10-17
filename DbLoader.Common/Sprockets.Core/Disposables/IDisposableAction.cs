@@ -15,35 +15,9 @@
  * *********************************************************************************/
 
 using System;
-using System.Threading;
 
 namespace Sprockets.Core.Disposables {
-    /// <summary>
-    ///     Helper to avoid having to create IDisposable
-    ///     classes used to perform limited operations.
-    /// </summary>
-    public class DisposableAction : IDisposableAction {
-        private readonly Action _action;
-        private int _executed;
-
-        public DisposableAction(Action action) {
-            _action = action ?? (() => { });
-        }
-
-        public virtual void Dispose() {
-            if (Deactivate() > 1)
-                return;
-
-            _action();
-        }
-
-
-        /// <summary>
-        ///     Disables the action without calling it
-        /// </summary>
-        /// <returns></returns>
-        public int Deactivate() {
-            return Interlocked.Increment(ref _executed);
-        }
+    public interface IDisposableAction : IDisposable {
+        int Deactivate();
     }
 }
