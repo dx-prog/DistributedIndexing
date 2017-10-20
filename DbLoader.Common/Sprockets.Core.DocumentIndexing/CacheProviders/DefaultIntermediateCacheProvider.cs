@@ -43,16 +43,14 @@ namespace Sprockets.Core.DocumentIndexing.CacheProviders {
             return new DisposableStopwatch();
         }
 
-        public string Save(string remoteSourceIdentity,
-            string friendlyName,
-            string originalMimeType,
+        public string Save(TextIndexingRequest request,
             ExtractionPointDetail text) {
             var dropFile = "";
             while (string.IsNullOrEmpty(dropFile) || File.Exists(dropFile))
                 dropFile = Path.Combine(_dropFolder, DateTime.Now.Ticks + "." + text.Sid + ".idx");
 
             var idxIdentity =
-                CreateCacheEntry(remoteSourceIdentity, friendlyName, originalMimeType, text.Segment, dropFile);
+                CreateCacheEntry(request.RemoteSourceIdentity, request.FriendlyName, request.MimeType, text.Segment, dropFile);
 
             return idxIdentity;
         }
@@ -78,6 +76,7 @@ namespace Sprockets.Core.DocumentIndexing.CacheProviders {
                     info.Root.Attribute("LSI").Value,
                     info.Root.Attribute("RSI").Value,
                     info.Root.Attribute("FriendlyName").Value,
+                    info.ToString().GetHashCode().ToString(),
                     new IndexingRequestDetails(CultureInfo.InvariantCulture,
                         Encoding.Unicode,
                         info.Root.Attribute("OriginalMimeType").Value,

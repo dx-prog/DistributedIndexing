@@ -78,9 +78,7 @@ namespace Sprockets.Core.DocumentIndexing.Indexers {
                             // ReSharper disable once LoopCanBeConvertedToQuery
                             foreach (var point in dataPoints.ExtractionPointDetails) {
                                 var id = _cache.Save(
-                                    request.RemoteSourceIdentity,
-                                    request.FriendlyName,
-                                    request.MimeType,
+                                    request,
                                     point
                                 );
                                 ids.Add(id);

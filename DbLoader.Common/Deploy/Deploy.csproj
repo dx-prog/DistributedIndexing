@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net461</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NuGet.Core" Version="2.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sprockets.Core.DocumentIndexing\Sprockets.Core.DocumentIndexing.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Sprockets.Core\Sprockets.Core.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Sprockets.Data\Sprockets.Data.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Sprockets.DocumentIndexer.Lucene\Sprockets.DocumentIndexer.Lucene.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Sprockets.Expressions\Sprockets.Expressions.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Sprockets.Graph\Sprockets.Graph.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Sprockets.LargeGraph.Serialization\Sprockets.LargeGraph.Serialization.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Sprockets.Lexer\Sprockets.Lexer.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Sprockets.Scripting\Sprockets.Scripting.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Sprockets.Threading\Sprockets.Threading.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Sprockets.DistributedIndexing.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

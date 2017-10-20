@@ -60,11 +60,10 @@ namespace Sprockets.DocumentIndexer.Lucene {
             return _session.Value = _provider.OpenSession<TextDocument>();
         }
 
-        public string Save(string remoteSourceIdentity,
-            string friendlyName,
-            string originalMimeType,
+        public string Save(
+            TextIndexingRequest request,
             ExtractionPointDetail text) {
-            var record = new TextDocument(remoteSourceIdentity, friendlyName, originalMimeType, text) {
+            var record = new TextDocument(request.RemoteSourceIdentity, request.FriendlyName, request.MimeType, text) {
                 Id = Guid.NewGuid().ToString(),
                 Created = DateTimeOffset.UtcNow
             };

@@ -26,9 +26,8 @@ namespace Sprockets.Core.DocumentIndexing.Types {
         /// </summary>
         /// <returns></returns>
         IDisposable OpenCache();
-        string Save(string remoteSourceIdentity,
-            string friendlyName,
-            string originalMimeType,
+        string Save(
+            TextIndexingRequest request,
             ExtractionPointDetail text);
 
         void Clear();

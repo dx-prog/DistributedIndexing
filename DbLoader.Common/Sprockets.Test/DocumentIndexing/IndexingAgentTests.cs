@@ -85,6 +85,7 @@ namespace Sprockets.Test.DocumentIndexing {
                     null,
                     fullFileName,
                     "text file",
+                    "",
                     IndexingRequestDetails.Create<DefaultXmlExtractor>(
                         CultureInfo.InvariantCulture,
                         Encoding.ASCII,
@@ -103,6 +104,7 @@ namespace Sprockets.Test.DocumentIndexing {
                     null,
                     fullFileName,
                     "text file",
+                    "",
                     IndexingRequestDetails.Create<DefaultTdfExtractor>(
                         CultureInfo.InvariantCulture,
                         Encoding.ASCII,

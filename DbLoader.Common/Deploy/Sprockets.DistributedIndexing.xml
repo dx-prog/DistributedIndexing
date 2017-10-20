@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata minClientVersion="2.12">
+    <id>Sprockets</id>
+    <title>Sprockets</title>
+    <version>0.1.0.2-beta</version>
+    <authors>David Garcia</authors>
+    <owners>David Garcia</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://github.com/dx-prog/DistributedIndexing</projectUrl>
+    <iconUrl>http://github.com/contoso/UsefulStuff/nuget_icon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    
+    <releaseNotes>NA</releaseNotes>
+    <description>Loads files of various types through extractors into a distributed indexing system </description>
+    <copyright>Copyright ©2017 David Garcia</copyright>
+    <tags>web utility http json url parsing</tags>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="10.0.3" />
+      <dependency id="Microsoft.Extensions.DependencyInjection" version="2.0" />
+      <dependency id="AngleSharp" version="0.9.9" />
+      <dependency id="Lucene.Net" version="3.0.3" />
+    </dependencies>
+  </metadata>
+</package>

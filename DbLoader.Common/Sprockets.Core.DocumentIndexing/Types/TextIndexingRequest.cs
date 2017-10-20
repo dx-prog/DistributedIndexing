@@ -26,24 +26,30 @@ namespace Sprockets.Core.DocumentIndexing.Types {
             string localSourceIdentity,
             string remoteSourceIdentity,
             string friendlyName,
+            string documentVersion,
             IndexingRequestDetails details,
             Stream content) : base(details) {
             _stream = ignored => content;
             RemoteSourceIdentity = remoteSourceIdentity;
             LocalSourceIdentity = localSourceIdentity;
             FriendlyName = friendlyName;
+            DocumentVersion = documentVersion;
         }
+
+        public string DocumentVersion { get; }
 
         public TextIndexingRequest(
             string localSourceIdentity,
             string remoteSourceIdentity,
             string friendlyName,
+            string documentVersion,
             IndexingRequestDetails details,
             Func<TextIndexingRequest, Stream> content) : base(details) {
             _stream = content;
             RemoteSourceIdentity = remoteSourceIdentity;
             LocalSourceIdentity = localSourceIdentity;
             FriendlyName = friendlyName;
+            DocumentVersion = documentVersion;
         }
 
         public string FriendlyName { get; }
