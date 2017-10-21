@@ -70,22 +70,24 @@ namespace Sprockets.Core.DocumentIndexing.Indexers {
                             request.Details.Schema))
                             continue;
 
-                        var preExtractionData = PreExtractionTransform(request);
-                        var dataPoints = extractor.ExtractText(request.Details, preExtractionData);
-                        dataPoints = PostExtractionTransform(dataPoints);
-                        var ids = new List<string>();
-                        using (_cache.OpenCache()) {
-                            // ReSharper disable once LoopCanBeConvertedToQuery
-                            foreach (var point in dataPoints.ExtractionPointDetails) {
-                                var id = _cache.Save(
-                                    request,
-                                    point
-                                );
-                                ids.Add(id);
+                        using (var preExtractionData = PreExtractionTransform(request)) {
+                            var dataPoints = extractor.ExtractText(request.Details, preExtractionData);
+                            dataPoints = PostExtractionTransform(dataPoints);
+                            var ids = new List<string>();
+                            using (_cache.OpenCache()) {
+                                // ReSharper disable once LoopCanBeConvertedToQuery
+                                foreach (var point in dataPoints.ExtractionPointDetails) {
+                                    var id = _cache.Save(
+                                        request,
+                                        point
+                                    );
+                                    ids.Add(id);
+                                }
                             }
-                        }
 
-                        request.ExtractionResult.SetSuccess(string.Join(",", ids));
+
+                            request.ExtractionResult.SetSuccess(string.Join(",", ids));
+                        }
                     }
                     catch (Exception ex) {
                         request.ExtractionResult.SetFailure(ex);

@@ -27,7 +27,7 @@ using Sprockets.LargeGraph.Serialization;
 namespace Sprockets.Core.DocumentIndexing.Extractors {
     public class DefaultHtmlExtractor : IExtractor {
         public int MaxNodeDepth { get; set; } = 256;
-
+        public bool FullDocumentCapture { get; set; }
         public bool CanExtract(CultureInfo culture, string mimeType, string schema) {
             return
                 string.Equals("text/htm", mimeType, StringComparison.OrdinalIgnoreCase) ||
@@ -42,8 +42,12 @@ namespace Sprockets.Core.DocumentIndexing.Extractors {
 
                 // using degrapher because AngleSharp uses recursion
                 var returnResult = new ExtractionResult(details);
-
-                returnResult.GenerateSegments(document, HtmlDegrapher);
+                if (FullDocumentCapture) {
+                    returnResult.GenerateSegments(document.TextContent, HtmlDegrapher);
+                }
+                else {
+                    returnResult.GenerateSegments(document, HtmlDegrapher);
+                }
                 returnResult.AnnotateSegments();
 
                 return returnResult;
